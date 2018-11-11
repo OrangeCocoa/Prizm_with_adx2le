@@ -20,7 +20,7 @@ namespace Prizm
 		DirectX::SimpleMath::Vector3 pos_, up_, look_at_, velocity_, forward_;
 		DirectX::SimpleMath::Matrix rotation_;
 		DirectX::SimpleMath::Vector3 translation_;
-		Prism::ConstantBuffferCamera constant_buffer_;
+		ConstantBuffferCamera constant_buffer_;
 		float overlay_alpha_;
 
 		float drag_;

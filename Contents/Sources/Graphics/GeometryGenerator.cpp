@@ -5,6 +5,7 @@
 #include"GeometryGenerator.h"
 #include"Buffer.h"
 #include"..\Framework\Utils.h"
+#include"..\Window\Window.h"
 
 namespace Prizm
 {
@@ -128,8 +129,9 @@ namespace Prizm
 		// 
 		Geometry Quad2D(float width, float height, float center_x, float center_y)
 		{
-			const float width_half = width / 2;
-			const float height_half = height / 2;
+			const float width_half = width / window_width<float>;
+			const float height_half = height / window_height<float>;;
+
 
 			//	  1	+-----+ 2	0, 1, 2
 			//		|	  |		2, 3, 0
@@ -162,8 +164,8 @@ namespace Prizm
 
 			for (auto& vertex : vertices)
 			{
-				vertex.position.x += center_x;
-				vertex.position.y += center_y;
+				vertex.position.x += center_x / window_width<float>;
+				vertex.position.y += center_y / window_height<float>;
 			}
 
 			return Geometry(vertices, indices, BufferUsage::DYNAMIC);

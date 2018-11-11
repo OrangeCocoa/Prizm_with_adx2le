@@ -24,7 +24,6 @@
     <ClCompile Include="..\..\Sources\Graphics\Graphics.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\Geometry.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\ImguiManager.cpp" />
-    <ClCompile Include="..\..\Sources\Graphics\RenderTarget.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\Shader.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\ShadowRenderer.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\Texture.cpp" />
@@ -39,11 +38,18 @@
     <ClInclude Include="..\..\Sources\Graphics\ImguiManager.h" />
     <ClInclude Include="..\..\Sources\Graphics\ShadowRenderer.h" />
     <ClInclude Include="..\..\Sources\Graphics\TileRenderer.h" />
-    <ClInclude Include="..\..\Sources\Graphics\RenderTarget.h" />
     <ClInclude Include="..\..\Sources\Graphics\Shader.h" />
     <ClInclude Include="..\..\Sources\Graphics\Texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\..\Sources\Graphics\Shaders\ShadowMap.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="..\..\Sources\Graphics\Shaders\Texture.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
+    </FxCompile>
     <FxCompile Include="..\..\Sources\Graphics\Shaders\TileForward_cs.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>

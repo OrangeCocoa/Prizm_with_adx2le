@@ -4,11 +4,11 @@
 #include"..\..\Game\Camera.h"
 #include"..\..\Framework\Log.h"
 #include"..\..\Input\Input.h"
+#include"..\Light.h"
 #include"..\..\Graphics\ImguiManager.h"
 #include"..\Entity\Player3D.h"
 #include"..\Entity\GroundField.h"
 #include"..\Entity\BackGround.h"
-//#include"..\Entity\TestUI.h"
 #include"..\..\Framework\Entity.h"
 
 namespace Prizm
@@ -18,7 +18,7 @@ namespace Prizm
 	public:
 		std::unique_ptr<Camera> main_camera_;
 
-		std::unique_ptr<BackGround> back_ground_;
+		std::unique_ptr<Light> point_light_;
 
 		std::unique_ptr<ImguiManager> imgui_manager_;
 
@@ -36,16 +36,12 @@ namespace Prizm
 
 	void MainGameScene::LoadScene(void)
 	{
-		this->AddGameObject<BackGround>();
-		this->GetGameObject<BackGround>(this->game_object_indices_[typeid(BackGround).name()].back())->Initialize("win_7_00.jpg");
+		this->AddBackGround<BackGround>();
+		this->GetBackGround<BackGround>(this->game_object_indices_[typeid(BackGround).name()].back())->LoadShader("2D.hlsl");
+		this->GetBackGround<BackGround>(this->game_object_indices_[typeid(BackGround).name()].back())->LoadTexture("win_7_00.jpg");
 
 		impl_->main_camera_ = std::make_unique<Camera>();
 		impl_->main_camera_->Initialize();
-
-		impl_->back_ground_ = std::make_unique<BackGround>();
-
-		impl_->back_ground_->Initialize();
-		impl_->back_ground_->Initialize("win_7_00.jpg");
 
 		impl_->imgui_manager_->Initialize();
 	}
@@ -64,13 +60,12 @@ namespace Prizm
 		impl_->CameraUpdate();
 		
 		// 2d back ground
-		impl_->back_ground_->Draw();
 
 		// 3d object
 
 		// 2d ui
 
-		//this->DrawEntities();
+		this->DrawEntities();
 
 		impl_->imgui_manager_->EndFrame();
 	}

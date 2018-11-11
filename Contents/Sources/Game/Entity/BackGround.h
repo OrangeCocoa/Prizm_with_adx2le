@@ -16,10 +16,11 @@ namespace Prizm
 		BackGround(void);
 		~BackGround();
 
-		bool Initialize(const std::string&);
 		bool Initialize() override;
 		void Run(void) override;
 		void Draw(void) override;
 		void Finalize(void) override;
+		bool LoadShader(const std::string&);
+		bool LoadTexture(const std::string&);
 	};
 }

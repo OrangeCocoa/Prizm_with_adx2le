@@ -32,7 +32,22 @@ namespace Prizm
 
 	void BaseScene::RunEntities(void)
 	{
-		for (auto&& game_object : game_objects_)
+		for (unsigned int i = 0; i < back_ground_.Size(); ++i)
+		{
+			if (back_ground_.Get(i))
+				back_ground_.Get(i)->Run();
+		}
+
+		for (auto&& game_object : game_objects_3D_)
+		{
+			for (auto index : game_object_indices_[game_object.first])
+			{
+				if (game_object.second.Get(index))
+					game_object.second.Get(index)->Run();
+			}
+		}
+
+		for (auto&& game_object : game_objects_2D_)
 		{
 			for (auto index : game_object_indices_[game_object.first])
 			{
@@ -44,7 +59,22 @@ namespace Prizm
 
 	void BaseScene::DrawEntities(void)
 	{
-		for (auto&& game_object : game_objects_)
+		for (unsigned int i = 0; i < back_ground_.Size(); ++i)
+		{
+			if (back_ground_.Get(i))
+				back_ground_.Get(i)->Draw();
+		}
+
+		for (auto&& game_object : game_objects_3D_)
+		{
+			for (auto index : game_object_indices_[game_object.first])
+			{
+				if (game_object.second.Get(index))
+					game_object.second.Get(index)->Draw();
+			}
+		}
+
+		for (auto&& game_object : game_objects_2D_)
 		{
 			for (auto index : game_object_indices_[game_object.first])
 			{
@@ -56,7 +86,28 @@ namespace Prizm
 
 	void BaseScene::FinalizeEntities(void)
 	{
-		for (auto&& game_object : game_objects_)
+		for (unsigned int i = 0; i < back_ground_.Size(); ++i)
+		{
+			if (back_ground_.Get(i))
+			{
+				back_ground_.Get(i)->Finalize();
+				back_ground_.Release(i);
+			}
+		}
+
+		for (auto&& game_object : game_objects_3D_)
+		{
+			for (auto index : game_object_indices_[game_object.first])
+			{
+				if (game_object.second.Get(index))
+				{
+					game_object.second.Get(index)->Finalize();
+					game_object.second.Release(index);
+				}
+			}
+		}
+
+		for (auto&& game_object : game_objects_2D_)
 		{
 			for (auto index : game_object_indices_[game_object.first])
 			{

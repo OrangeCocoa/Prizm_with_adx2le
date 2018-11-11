@@ -7,6 +7,7 @@
 #include"Buffer.h"
 #include"Texture.h"
 #include"ConstantBuffer.h"
+#include"..\Window\Window.h"
 
 namespace Prizm
 {
@@ -77,7 +78,7 @@ namespace Prizm
 			index_buffer_ = Buffer(buffer_desc);
 			index_buffer_.Initialize(device_.Get(), static_cast<const void*>(indices.data()));
 
-			topology_ = TopologyType::LINE_LIST;
+			topology_ = TopologyType::TRIANGLE_LIST;
 		}
 
 		void Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext>&);
@@ -87,5 +88,14 @@ namespace Prizm
 
 		Buffer GetVertex(void) { return vertex_buffer_; }
 		Buffer GetIndex(void) { return index_buffer_; }
+
+		void MovePosition2DScreenToRatio(float x, float y)
+		{
+			for (auto vtx : vertex_2D_)
+			{
+				vtx.position.x += x / window_width<float>;
+				vtx.position.y += y / window_height<float>;
+			}
+		}
 	};
 }

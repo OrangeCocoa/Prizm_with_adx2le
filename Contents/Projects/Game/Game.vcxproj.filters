@@ -88,5 +88,8 @@
     <ClInclude Include="..\..\Sources\Game\Scenes\TitleScene.h">
       <Filter>Header\Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Entity\Player3D.h">
+      <Filter>Header\Entity</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

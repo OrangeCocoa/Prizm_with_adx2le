@@ -78,7 +78,7 @@ namespace Prizm
 		return impl_->RTV_.Get();
 	}
 
-	ID3D11ShaderResourceView * RenderTarget::GetSRV()
+	ID3D11ShaderResourceView* RenderTarget::GetSRV()
 	{
 		return impl_->SRV_.Get();
 	}

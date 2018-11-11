@@ -17,7 +17,7 @@ namespace Prizm
 		GroundField(void);
 		~GroundField(void);
 
-		bool Init(const std::unique_ptr<Camera>&);
+		bool Initialize(const std::unique_ptr<Camera>&);
 		void Run(void);
 		void Draw(const std::unique_ptr<Camera>&);
 		bool LoadShader(void);

@@ -26,9 +26,10 @@ namespace Prizm
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>							device_context_; // immediate
 		Microsoft::WRL::ComPtr<IDXGISwapChain>								swap_chain_;
 
-		ResourcePool<RenderTarget>											render_targets_;
+		std::vector<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>>			render_targets_;
 		unsigned int														back_RT_index_;
 		unsigned int														shadow_RT_index_;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>					shadow_resource_;
 
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>						depth_stencil_view_;
 
@@ -317,18 +318,52 @@ namespace Prizm
 
 		const unsigned int CreateRenderTargetView(void)
 		{
-			auto index = render_targets_.Load(std::make_shared<RenderTarget>());
+			render_targets_.emplace_back();
+			auto index = render_targets_.size() - 1;
 
-			render_targets_.Get(index)->CreateBackBuffer(swap_chain_, device_context_);
+			Microsoft::WRL::ComPtr<ID3D11Texture2D> tex_2d;
+
+			swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), static_cast<void**>(&tex_2d));
+
+			device_->CreateRenderTargetView(tex_2d.Get(), nullptr, render_targets_[index].GetAddressOf());
 
 			return index;
 		}
 
 		const unsigned int CreateShadowRenderTargetView(void)
 		{
-			auto index = render_targets_.Load(std::make_shared<RenderTarget>());
+			render_targets_.emplace_back();
+			auto index = render_targets_.size() - 1;
 
-			render_targets_.Get(index)->CreateShadow(device_context_);
+			Microsoft::WRL::ComPtr<ID3D11Texture2D> texture_2d;
+
+			D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+			D3D11_RENDER_TARGET_VIEW_DESC RTVDesc = {};
+			D3D11_TEXTURE2D_DESC desc = {};
+			desc.Width = window_width<unsigned int>;
+			desc.Height = window_height<unsigned int>;
+			desc.MipLevels = 1;
+			desc.ArraySize = 1;
+			desc.CPUAccessFlags = 0;
+			desc.MiscFlags = 0;
+			device_->CreateTexture2D(&desc, nullptr, texture_2d.GetAddressOf());
+
+			desc.Format = DXGI_FORMAT_R32_FLOAT;
+			desc.SampleDesc.Count = 1;
+			desc.SampleDesc.Quality = 0;
+			desc.Usage = D3D11_USAGE_DEFAULT;
+			desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+			device_->CreateTexture2D(&desc, nullptr, texture_2d.GetAddressOf());
+
+			RTVDesc.Format = desc.Format;
+			RTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+			RTVDesc.Texture2D.MipSlice = 0;
+			device_->CreateRenderTargetView(texture_2d.Get(), &RTVDesc, render_targets_[index].GetAddressOf());
+
+			SRVDesc.Format = desc.Format;
+			SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			SRVDesc.Texture2D.MipLevels = 1;
+			device_->CreateShaderResourceView(texture_2d.Get(), &SRVDesc, shadow_resource_.GetAddressOf());
 
 			return index;
 		}
@@ -678,7 +713,7 @@ namespace Prizm
 
 			if (!CreateDepthStencilView()) return false;
 
-			device_context_->OMSetRenderTargets(1, reinterpret_cast<ID3D11RenderTargetView*const*>(render_targets_.Get(back_RT_index_)->GetRTV()), depth_stencil_view_.Get());
+			device_context_->OMSetRenderTargets(1, render_targets_[back_RT_index_].GetAddressOf(), depth_stencil_view_.Get());
 
 			return true;
 		}
@@ -721,8 +756,12 @@ namespace Prizm
 			if (!InitDeviceAndSwapChain()) return false;
 
 			back_RT_index_ = CreateRenderTargetView();
+			//shadow_RT_index_ = CreateShadowRenderTargetView();
 
 			if (!CreateDepthStencilView()) return false;
+
+			// RenderTarget set to immediate device context
+			device_context_->OMSetRenderTargets(1, render_targets_[back_RT_index_].GetAddressOf(), depth_stencil_view_.Get());
 
 			if (!CreateViewPort()) return false;
 
@@ -789,7 +828,7 @@ namespace Prizm
 		void Graphics::BeginFrame(void)
 		{
 			float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; //red, green, blue, alpha
-			device_context_->ClearRenderTargetView(render_targets_.Get(back_RT_index_)->GetRTV(), ClearColor);
+			device_context_->ClearRenderTargetView(render_targets_[back_RT_index_].Get(), ClearColor);
 			device_context_->ClearDepthStencilView(depth_stencil_view_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		}
 

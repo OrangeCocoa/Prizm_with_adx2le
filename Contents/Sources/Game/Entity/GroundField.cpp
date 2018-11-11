@@ -6,6 +6,7 @@
 #include"..\..\Graphics\GeometryGenerator.h"
 #include"..\..\Graphics\Shader.h"
 #include"..\..\Graphics\Texture.h"
+#include"..\..\Graphics\ConstantBuffer.h"
 #include"..\Camera.h"
 #include"..\..\Input\Input.h"
 #include"..\..\Framework\Log.h"
@@ -23,15 +24,14 @@ namespace Prizm
 			, texture_(std::make_unique<Texture>()){}
 	};
 
-
 	GroundField::GroundField(void) : impl_(std::make_unique<Impl>()){}
 	GroundField::~GroundField(void) = default;
 
-	bool GroundField::Init(const std::unique_ptr<Camera>& camera)
+	bool GroundField::Initialize(const std::unique_ptr<Camera>& camera)
 	{
 		impl_->geometry_ = std::make_unique<Geometry>(GeometryGenerator::QuadFieldList(100, 100));
 
-		Prism::CostantBufferMatrix3DSimple cb;
+		CostantBufferMatrix3DSimple cb;
 
 		cb.world = DirectX::SimpleMath::Matrix::Identity;
 		cb.view = camera->GetViewMatrix();
@@ -41,7 +41,7 @@ namespace Prizm
 
 		LoadShader();
 
-		impl_->shader_->CreateConstantBuffer<Prism::CostantBufferMatrix3DSimple>(Graphics::GetDevice(), cb);
+		impl_->shader_->CreateConstantBuffer(Graphics::GetDevice(), cb);
 
 		return true;
 	}
@@ -52,7 +52,7 @@ namespace Prizm
 
 	void GroundField::Draw(const std::unique_ptr<Camera>& camera)
 	{
-		/*Prism::CostantBufferMatrix3DSimple cb;
+		CostantBufferMatrix3DSimple cb;
 		DirectX::SimpleMath::Matrix matTrans;
 
 		DirectX::XMStoreFloat4x4(&matTrans, DirectX::XMMatrixTranslationFromVector(DirectX::SimpleMath::Vector3(0.0f, -4.0f, 0.0f)));
@@ -61,22 +61,22 @@ namespace Prizm
 		cb.view = camera->GetViewMatrix();
 		cb.proj = camera->GetProjectionMatrix();
 
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext> dc = impl_->graphics_->GetDeviceContext();
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> dc = Graphics::GetDeviceContext();
 
 		impl_->shader_->SetInputLayout(dc);
-		impl_->shader_->SetVertexShader(dc);
-		impl_->shader_->SetPixelShader(dc);
+		impl_->shader_->SetShader(dc, ShaderType::VS);
+		impl_->shader_->SetShader(dc, ShaderType::PS);
 
-		impl_->graphics_->SetRasterizerState(RasterizerStateType::CULL_NONE);
-		impl_->graphics_->SetDepthStencilState(DepthStencilStateType::DEPTH_WRITE);
-		impl_->graphics_->SetBlendState(BlendStateType::ALIGNMENT_BLEND);
+		Graphics::SetRasterizerState(RasterizerStateType::CULL_NONE);
+		Graphics::SetDepthStencilState(DepthStencilStateType::DEPTH_WRITE);
+		Graphics::SetBlendState(BlendStateType::ALIGNMENT_BLEND);
 
 		impl_->texture_->SetPSTexture(0, 1);
 
-		dc->PSSetSamplers(0, 1, impl_->graphics_->GetSamplerState(SamplerStateType::LINEAR_FILTER_SAMPLER).GetAddressOf());
+		dc->PSSetSamplers(0, 1, Graphics::GetSamplerState(SamplerStateType::LINEAR_FILTER_SAMPLER).GetAddressOf());
 
-		impl_->geometry_->UpdateConstantBuffer(dc, cb, 0, 1);
-		impl_->geometry_->Draw(dc);*/
+		impl_->shader_->UpdateConstantBuffer(dc, cb, ShaderType::VS, 0, 1);
+		impl_->geometry_->Draw(dc);
 	}
 
 	bool GroundField::LoadShader(void)

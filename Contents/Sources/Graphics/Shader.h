@@ -98,7 +98,7 @@ namespace Prizm
 
 		template<class ConstantBufferType>
 		void UpdateConstantBuffer(Microsoft::WRL::ComPtr<ID3D11DeviceContext>& dc,
-			ConstantBufferType& cb, ShaderType& type, 
+			ConstantBufferType& cb, ShaderType type, 
 			unsigned int register_slot, unsigned int buffer_num)
 		{
 			if (constant_buffer_.buffer_data)

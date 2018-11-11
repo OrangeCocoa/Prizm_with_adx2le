@@ -41,9 +41,6 @@
     <ClCompile Include="..\..\Sources\Graphics\ImguiManager.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Sources\Graphics\RenderTarget.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Sources\Graphics\ShadowRenderer.cpp">
       <Filter>Source\Renderer</Filter>
     </ClCompile>
@@ -76,9 +73,6 @@
     <ClInclude Include="..\..\Sources\Graphics\ImguiManager.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Sources\Graphics\RenderTarget.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Sources\Graphics\ShadowRenderer.h">
       <Filter>Header\Renderer</Filter>
     </ClInclude>
@@ -91,6 +85,12 @@
       <Filter>Source\Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\..\Sources\Graphics\Shaders\2D.hlsl">
+      <Filter>Source\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Sources\Graphics\Shaders\Texture.hlsl">
+      <Filter>Source\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Sources\Graphics\Shaders\ShadowMap.hlsl">
       <Filter>Source\Shader</Filter>
     </FxCompile>
   </ItemGroup>

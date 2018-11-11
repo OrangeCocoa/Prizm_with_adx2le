@@ -180,6 +180,7 @@
     <ClInclude Include="..\..\Sources\Game\Camera.h" />
     <ClInclude Include="..\..\Sources\Game\Entity\BackGround.h" />
     <ClInclude Include="..\..\Sources\Game\Entity\GroundField.h" />
+    <ClInclude Include="..\..\Sources\Game\Entity\Player3D.h" />
     <ClInclude Include="..\..\Sources\Game\GameManager.h" />
     <ClInclude Include="..\..\Sources\Game\Light.h" />
     <ClInclude Include="..\..\Sources\Game\SceneManager.h" />

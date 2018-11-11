@@ -2,7 +2,7 @@
 
 #include<DirectXTK/SimpleMath.h>
 
-namespace Prism
+namespace Prizm
 {
 	struct CostantBuffer2D
 	{// UI

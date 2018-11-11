@@ -19,20 +19,6 @@ namespace Prizm
 			: shader_(std::make_unique<Shader>())
 			, texture_(std::make_unique<Texture>())
 		{}
-
-		bool LoadShader(void)
-		{
-			std::vector<D3D11_INPUT_ELEMENT_DESC> def_element =
-			{
-				{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "COLOR"   , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			};
-
-			if (!shader_->CompileAndCreateFromFile(Graphics::GetDevice(), "2D.hlsl", ShaderType::VS, def_element)) return false;
-			if (!shader_->CompileAndCreateFromFile(Graphics::GetDevice(), "2D.hlsl", ShaderType::PS, def_element)) return false;
-			return true;
-		}
 	};
 
 	BackGround::BackGround(void) : impl_(std::make_unique<Impl>()) {}
@@ -40,16 +26,7 @@ namespace Prizm
 
 	bool BackGround::Initialize(void)
 	{
-		impl_->geometry_ = std::make_unique<Geometry>(GeometryGenerator::Quad2D(2, 2, window_width<float> / 2, window_height<float> / 2));
-
-		impl_->LoadShader();
-
-		return true;
-	}
-
-	bool BackGround::Initialize(const std::string& tex_path)
-	{
-		impl_->texture_->LoadTexture(tex_path);
+		impl_->geometry_ = std::make_unique<Geometry>(GeometryGenerator::Quad2D(960, 600, 0, 0));
 
 		return true;
 	}
@@ -75,9 +52,30 @@ namespace Prizm
 
 		device_context->PSSetSamplers(0, 1, Graphics::GetSamplerState(SamplerStateType::LINEAR_FILTER_SAMPLER).GetAddressOf());
 
-		impl_->geometry_->Draw(Graphics::GetDeviceContext());
+		impl_->geometry_->Draw(device_context);
 	}
 	void BackGround::Finalize(void)
 	{
+	}
+
+	bool BackGround::LoadShader(const std::string& shader_name)
+	{
+		std::vector<D3D11_INPUT_ELEMENT_DESC> def_element =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "COLOR"   , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+
+		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::VS, def_element)) return false;
+		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::PS, def_element)) return false;
+		return true;
+	}
+
+	bool BackGround::LoadTexture(const std::string& tex_name)
+	{
+		impl_->texture_->LoadTexture(tex_name);
+
+		return true;
 	}
 }
