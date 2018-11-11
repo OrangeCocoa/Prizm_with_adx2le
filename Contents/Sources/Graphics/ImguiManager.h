@@ -6,8 +6,6 @@
 
 namespace Prizm
 {
-	class Graphics;
-
 	class ImguiManager
 	{
 	private:
@@ -18,7 +16,7 @@ namespace Prizm
 		ImguiManager();
 		~ImguiManager();
 
-		void Initialize(const std::unique_ptr<Graphics>&);
+		void Initialize(void);
 		void Update(void);
 		void BeginFrame(void);
 		void EndFrame(void);

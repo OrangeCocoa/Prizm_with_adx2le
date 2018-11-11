@@ -1,15 +1,16 @@
 
 #include<string>
 #include<vector>
-#include<algorithm>
 #include<DirectXTK/SimpleMath.h>
 
 #include"Graphics.h"
+#include"RenderTarget.h"
 #include"ConstantBuffer.h"
 #include"Geometry.h"
 #include"Shader.h"
 #include"Texture.h"
 #include"GeometryGenerator.h"
+#include"..\Framework\ResourcePool.h"
 #include"..\Framework\Utils.h"
 #include"..\Framework\Log.h"
 #include"..\Window\Window.h"
@@ -19,20 +20,24 @@
 
 namespace Prizm
 {
-	class Graphics::Impl
+	namespace Graphics
 	{
-	public:
 		Microsoft::WRL::ComPtr<ID3D11Device>								device_;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>							device_context_; // immediate
 		Microsoft::WRL::ComPtr<IDXGISwapChain>								swap_chain_;
-		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>						render_target_view_;
-		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>						shadow_rt_view_;
+
+		ResourcePool<RenderTarget>											render_targets_;
+		unsigned int														back_RT_index_;
+		unsigned int														shadow_RT_index_;
+
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>						depth_stencil_view_;
 
 		std::vector<Microsoft::WRL::ComPtr<ID3D11BlendState>>				blend_states_;
 		std::vector<Microsoft::WRL::ComPtr<ID3D11SamplerState>>				sampler_states_;
 		std::vector<Microsoft::WRL::ComPtr<ID3D11RasterizerState>>			rasterizer_states_;
 		std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilState>>		depth_stencil_states_;
+
+		D3D11_VIEWPORT														view_port_;
 
 		Microsoft::WRL::ComPtr<IDXGIAdapter>								adapter_;
 		Microsoft::WRL::ComPtr<IDXGIFactory>								factory_;
@@ -52,32 +57,6 @@ namespace Prizm
 		unsigned int window_width_, window_height_;
 		unsigned int numerator_, denominator_;
 		bool		 fullscreen_;
-
-		Impl() :
-			vsync_enabled_(false), fullscreen_(false),
-			window_width_(0), window_height_(0),
-			numerator_(0), denominator_(0)
-		{
-			for (int i = 0; i < static_cast<int>(RasterizerStateType::RASTERIZER_STATE_MAX); ++i)
-			{
-				rasterizer_states_.emplace_back();
-			}
-
-			for (int i = 0; i < static_cast<int>(BlendStateType::BLEND_STATE_MAX); ++i)
-			{
-				blend_states_.emplace_back();
-			}
-
-			for (int i = 0; i < static_cast<int>(DepthStencilStateType::DEPTH_STENCIL_STATE_MAX); ++i)
-			{
-				depth_stencil_states_.emplace_back();
-			}
-
-			for (int i = 0; i < static_cast<int>(SamplerStateType::DEFAULT_SAMPLER_MAX); ++i)
-			{
-				sampler_states_.emplace_back();
-			}
-		}
 
 		void MSAASampleCheck(void)
 		{
@@ -247,7 +226,7 @@ namespace Prizm
 			sample_desc_.Quality = 0;
 
 			// Forward MSAA is criticaly 
-			//MSAASampleCheck();
+			MSAASampleCheck();
 
 			DXGI_SWAP_CHAIN_DESC swap_chain_desc;
 			memset(&swap_chain_desc, 0, sizeof(swap_chain_desc));
@@ -336,37 +315,22 @@ namespace Prizm
 			return true;
 		}
 
-		bool CreateRenderTargetView(void)
+		const unsigned int CreateRenderTargetView(void)
 		{
-			Microsoft::WRL::ComPtr<ID3D11Texture2D> back_buff = nullptr;
+			auto index = render_targets_.Load(std::make_shared<RenderTarget>());
 
-			if (failed(swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(back_buff.GetAddressOf())))) return false;
+			render_targets_.Get(index)->CreateBackBuffer(swap_chain_, device_context_);
 
-			if (failed(device_->CreateRenderTargetView(back_buff.Get(), nullptr, render_target_view_.GetAddressOf()))) return false;
-
-			return true;
+			return index;
 		}
 
-		bool CreateShadowRenderTargetView(void)
+		const unsigned int CreateShadowRenderTargetView(void)
 		{
-			Microsoft::WRL::ComPtr<ID3D11Texture2D> shadow_tex = nullptr;
+			auto index = render_targets_.Load(std::make_shared<RenderTarget>());
 
-			D3D11_TEXTURE2D_DESC renderTextureDesc;
-			renderTextureDesc.Width = window_width<unsigned int>;
-			renderTextureDesc.Height = window_height<unsigned int>;
-			renderTextureDesc.MipLevels = 1;
-			renderTextureDesc.ArraySize = 1;
-			renderTextureDesc.Format = DXGI_FORMAT_R32_FLOAT;
-			renderTextureDesc.SampleDesc.Count = 1;
-			renderTextureDesc.SampleDesc.Quality = 0;
-			renderTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-			renderTextureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-			renderTextureDesc.CPUAccessFlags = 0;
+			render_targets_.Get(index)->CreateShadow(device_context_);
 
-			if (failed(device_->CreateTexture2D(&renderTextureDesc, nullptr, shadow_tex.GetAddressOf())))return false;
-
-			if (failed(device_->CreateRenderTargetView(shadow_tex.Get(), nullptr, shadow_rt_view_.GetAddressOf()))) return false;
-
+			return index;
 		}
 
 		bool CreateDepthStencilView(void)
@@ -400,23 +364,19 @@ namespace Prizm
 				return false;
 			}
 
-			// RenderTarget set to immediate device context
-			device_context_->OMSetRenderTargets(1, render_target_view_.GetAddressOf(), depth_stencil_view_.Get());
-
 			return true;
 		}
 
 		bool CreateViewPort(void)
 		{
 			// viewport set to immediate device context
-			D3D11_VIEWPORT vp;
-			vp.Width = window_width<float>;
-			vp.Height = window_height<float>;
-			vp.MinDepth = 0.0f;
-			vp.MaxDepth = 1.0f;
-			vp.TopLeftX = 0;
-			vp.TopLeftY = 0;
-			device_context_->RSSetViewports(1, &vp);
+			view_port_.Width = window_width<float>;
+			view_port_.Height = window_height<float>;
+			view_port_.MinDepth = 0.0f;
+			view_port_.MaxDepth = 1.0f;
+			view_port_.TopLeftX = 0;
+			view_port_.TopLeftY = 0;
+			device_context_->RSSetViewports(1, &view_port_);
 
 			return true;
 		}
@@ -718,191 +678,196 @@ namespace Prizm
 
 			if (!CreateDepthStencilView()) return false;
 
-			device_context_->OMSetRenderTargets(1, render_target_view_.GetAddressOf(), depth_stencil_view_.Get());
+			device_context_->OMSetRenderTargets(1, reinterpret_cast<ID3D11RenderTargetView*const*>(render_targets_.Get(back_RT_index_)->GetRTV()), depth_stencil_view_.Get());
 
 			return true;
 		}
-	};
 
-	Graphics::Graphics() : impl_(std::make_unique<Impl>()) {}
-
-	Graphics::~Graphics() { Log::Info("~Graphics()"); }// = default;
-
-	bool Graphics::Init(int width, int height, const bool vsync, HWND hwnd, const bool FULL_SCREEN)
-	{
-		impl_->hwnd_ = hwnd;
-		impl_->window_width_ = width;
-		impl_->window_height_ = height;
-
-		impl_->vsync_enabled_ = vsync;
-		impl_->fullscreen_ = FULL_SCREEN;
-
-		if (!impl_->GetDisplayMode()) return false;
-
-		if (!impl_->InitDeviceAndSwapChain()) return false;
-
-		if (!impl_->CreateRenderTargetView()) return false;
-
-		if (!impl_->CreateDepthStencilView()) return false;
-
-		if (!impl_->CreateViewPort()) return false;
-
-		if (!impl_->CreateDefaultRasterizerState()) return false;
-
-		if (!impl_->CreateDefaultBlendState()) return false;
-
-		if (!impl_->CreateDefaultSamplerState()) return false;
-
-		if (!impl_->CreateDefaultDepthStencilState()) return false;
-
-		Log::Info("Graphics initialize succeeded.\n\nDirectX11 is all grean!\n");
-
-		return true;
-	}
-
-	void Graphics::Exit(void)
-	{
-		impl_->ReportLiveObjects("Exit call.");
-
-		if (impl_->swap_chain_)
+		bool Graphics::Initialize(int width, int height, const bool vsync, HWND hwnd, const bool FULL_SCREEN)
 		{
-			impl_->swap_chain_->SetFullscreenState(false, nullptr);
-			impl_->swap_chain_.Reset();
+			vsync_enabled_ = false;
+			fullscreen_ = false;
+			window_width_ = window_height_ = numerator_ = denominator_ = 0;
+
+			for (int i = 0; i < static_cast<int>(RasterizerStateType::RASTERIZER_STATE_MAX); ++i)
+			{
+				rasterizer_states_.emplace_back();
+			}
+
+			for (int i = 0; i < static_cast<int>(BlendStateType::BLEND_STATE_MAX); ++i)
+			{
+				blend_states_.emplace_back();
+			}
+
+			for (int i = 0; i < static_cast<int>(DepthStencilStateType::DEPTH_STENCIL_STATE_MAX); ++i)
+			{
+				depth_stencil_states_.emplace_back();
+			}
+
+			for (int i = 0; i < static_cast<int>(SamplerStateType::DEFAULT_SAMPLER_MAX); ++i)
+			{
+				sampler_states_.emplace_back();
+			}
+
+			hwnd_ = hwnd;
+			window_width_ = width;
+			window_height_ = height;
+
+			vsync_enabled_ = vsync;
+			fullscreen_ = FULL_SCREEN;
+
+			if (!GetDisplayMode()) return false;
+
+			if (!InitDeviceAndSwapChain()) return false;
+
+			back_RT_index_ = CreateRenderTargetView();
+
+			if (!CreateDepthStencilView()) return false;
+
+			if (!CreateViewPort()) return false;
+
+			if (!CreateDefaultRasterizerState()) return false;
+
+			if (!CreateDefaultBlendState()) return false;
+
+			if (!CreateDefaultSamplerState()) return false;
+
+			if (!CreateDefaultDepthStencilState()) return false;
+
+			Geometry::SetDevice(device_);
+
+			Log::Info("Graphics initialize succeeded.\n\nDirectX11 is all grean!\n");
+
+			return true;
 		}
 
-		if (impl_->device_context_)
+		void Graphics::Finalize(void)
 		{
-			impl_->device_context_.Reset();
-		}
+			ReportLiveObjects("Exit call.");
 
-		if (impl_->device_)
-		{
-			impl_->device_.Reset();
-		}
+			if (swap_chain_)
+			{
+				swap_chain_->SetFullscreenState(false, nullptr);
+				swap_chain_.Reset();
+			}
 
-		if (impl_->adapter_)
-		{
-			impl_->adapter_.Reset();
-		}
+			if (device_context_)
+			{
+				device_context_.Reset();
+			}
 
-		if (impl_->factory_)
-		{
-			impl_->factory_.Reset();
-		}
+			if (device_)
+			{
+				device_.Reset();
+			}
+
+			if (adapter_)
+			{
+				adapter_.Reset();
+			}
+
+			if (factory_)
+			{
+				factory_.Reset();
+			}
 
 #ifdef _DEBUG
-		if (impl_->debug_)
-		{
-			impl_->debug_.Reset();
-		}
+			if (debug_)
+			{
+				debug_.Reset();
+			}
 
-		if (impl_->annotation_)
-		{
-			impl_->annotation_->EndEvent();
-			impl_->annotation_.Reset();
-		}
+			if (annotation_)
+			{
+				annotation_->EndEvent();
+				annotation_.Reset();
+			}
 #endif
-		return;
-	}
-
-	void Graphics::BeginFrame(void)
-	{
-		float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; //red, green, blue, alpha
-		impl_->device_context_->ClearRenderTargetView(impl_->render_target_view_.Get(), ClearColor);
-		impl_->device_context_->ClearDepthStencilView(impl_->depth_stencil_view_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	}
-
-	void Graphics::EndFrame()
-	{
-		impl_->swap_chain_->Present(static_cast<unsigned>(impl_->vsync_enabled_), 0);
-
-		impl_->device_context_->IASetInputLayout(nullptr);
-		impl_->device_context_->VSSetShader(nullptr, nullptr, 0);
-		impl_->device_context_->GSSetShader(nullptr, nullptr, 0);
-		impl_->device_context_->HSSetShader(nullptr, nullptr, 0);
-		impl_->device_context_->DSSetShader(nullptr, nullptr, 0);
-		impl_->device_context_->PSSetShader(nullptr, nullptr, 0);
-		impl_->device_context_->CSSetShader(nullptr, nullptr, 0);
-	}
-
-	/*void Graphics::DrawQuadOnScreen(void)
-	{
-		PrizmEngine::DrawQuadScreen dqs = {};
-
-		const int dgs.width_and_height.x = Settings::window_width<int>;
-		const int screenHeight = Settings::window_height<int>;
-		const float& dimx = cmd.dimensionsInPixels.x();
-		const float& dimy = cmd.dimensionsInPixels.y();
-		const float posx = cmd.bottomLeftCornerScreenCoordinates.x() * 2.0f - screenWidth;
-		const float posy = cmd.bottomLeftCornerScreenCoordinates.y() * 2.0f - screenHeight;
-		const DirectX::SimpleMath::Vector2 posCenter((posx + dimx) / screenWidth, (posy + dimy) / screenHeight);
-
-		const XMVECTOR scale = vec3(dimx / screenWidth, dimy / screenHeight, 0.0f);
-		const XMVECTOR translation = vec3(posCenter.x(), posCenter.y(), 0);
-		const XMMATRIX transformation = XMMatrixAffineTransformation(scale, vec3::Zero, XMQuaternionIdentity(), translation);
-	}*/
-
-	bool Graphics::ChangeWindowMode(void)
-	{
-		if (!impl_->swap_chain_) return false;
-
-		DXGI_SWAP_CHAIN_DESC desc;
-		impl_->swap_chain_->GetDesc(&desc);
-
-		int full_screen;
-
-		// GetFullscreenState
-		impl_->swap_chain_->GetFullscreenState(&full_screen, NULL);
-
-		// SetFullscreenState
-		impl_->swap_chain_->SetFullscreenState(!full_screen, NULL);
-
-		switch (full_screen)
-		{
-		case TRUE:
-			Log::Info("Change full screen.");
-			break;
-		case FALSE:
-			Log::Info("Change window screen.");
-			break;
+			return;
 		}
 
-		::ShowWindow(impl_->hwnd_, SW_SHOW);
+		void Graphics::BeginFrame(void)
+		{
+			float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; //red, green, blue, alpha
+			device_context_->ClearRenderTargetView(render_targets_.Get(back_RT_index_)->GetRTV(), ClearColor);
+			device_context_->ClearDepthStencilView(depth_stencil_view_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		}
 
-		if (!impl_->ChangeWindowSize(0, 0)) return false;
+		void Graphics::EndFrame()
+		{
+			swap_chain_->Present(static_cast<unsigned>(vsync_enabled_), 0);
 
-		return true;
+			device_context_->IASetInputLayout(nullptr);
+			device_context_->VSSetShader(nullptr, nullptr, 0);
+			device_context_->GSSetShader(nullptr, nullptr, 0);
+			device_context_->HSSetShader(nullptr, nullptr, 0);
+			device_context_->DSSetShader(nullptr, nullptr, 0);
+			device_context_->PSSetShader(nullptr, nullptr, 0);
+			device_context_->CSSetShader(nullptr, nullptr, 0);
+		}
+
+		bool Graphics::ChangeWindowMode(void)
+		{
+			if (!swap_chain_) return false;
+
+			DXGI_SWAP_CHAIN_DESC desc;
+			swap_chain_->GetDesc(&desc);
+
+			int full_screen;
+
+			// GetFullscreenState
+			swap_chain_->GetFullscreenState(&full_screen, NULL);
+
+			// SetFullscreenState
+			swap_chain_->SetFullscreenState(!full_screen, NULL);
+
+			switch (full_screen)
+			{
+			case TRUE:
+				Log::Info("Change full screen.");
+				break;
+			case FALSE:
+				Log::Info("Change window screen.");
+				break;
+			}
+
+			::ShowWindow(hwnd_, SW_SHOW);
+
+			if (!ChangeWindowSize(0, 0)) return false;
+
+			return true;
+		}
+
+		void Graphics::DepthClear(void)
+		{
+			device_context_->ClearDepthStencilView(depth_stencil_view_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		}
+
+		void Graphics::SetBlendState(BlendStateType type)
+		{
+			float blendFactor[4] = { D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO };
+			device_context_->OMSetBlendState(blend_states_[type].Get(), blendFactor, 0xffffffff);
+		}
+
+		void Graphics::SetRasterizerState(RasterizerStateType type)
+		{
+			device_context_->RSSetState(rasterizer_states_[type].Get());
+		}
+
+		void Graphics::SetDepthStencilState(DepthStencilStateType type)
+		{
+			device_context_->OMSetDepthStencilState(depth_stencil_states_[type].Get(), 0);
+		}
+
+		Microsoft::WRL::ComPtr<ID3D11SamplerState>& Graphics::GetSamplerState(SamplerStateType type)
+		{
+			return sampler_states_[type];
+		}
+
+		Microsoft::WRL::ComPtr<ID3D11Device>& Graphics::GetDevice(void) { return device_; }
+
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext>& Graphics::GetDeviceContext(void) { return device_context_; }
+
+		HWND Graphics::GetWindowHandle(void) { return hwnd_; }
 	}
-
-	void Graphics::DepthClear(void)
-	{
-		impl_->device_context_->ClearDepthStencilView(impl_->depth_stencil_view_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	}
-
-	void Graphics::SetBlendState(BlendStateType type)
-	{
-		float blendFactor[4] = { D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO };
-		impl_->device_context_->OMSetBlendState(impl_->blend_states_[type].Get(), blendFactor, 0xffffffff);
-	}
-
-	void Graphics::SetRasterizerState(RasterizerStateType type)
-	{
-		impl_->device_context_->RSSetState(impl_->rasterizer_states_[type].Get());
-	}
-
-	void Graphics::SetDepthStencilState(DepthStencilStateType type)
-	{
-		impl_->device_context_->OMSetDepthStencilState(impl_->depth_stencil_states_[type].Get(), 0);
-	}
-
-	Microsoft::WRL::ComPtr<ID3D11SamplerState>& Graphics::GetSamplerState(SamplerStateType type)
-	{
-		return impl_->sampler_states_[type];
-	}
-
-	Microsoft::WRL::ComPtr<ID3D11Device>& Graphics::GetDevice(void) { return impl_->device_; }
-
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext>& Graphics::GetDeviceContext(void) { return impl_->device_context_; }
-	
-	HWND Graphics::GetWindowHandle(void) { return impl_->hwnd_;	}
 }

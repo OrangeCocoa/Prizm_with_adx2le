@@ -28,17 +28,16 @@ namespace Prizm
 	class Texture::Impl
 	{
 	public:
-		const std::unique_ptr<Graphics>& graphics_;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv_;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> tex_2D_;
 		unsigned width_, height_;
 
 		std::string file_name_;
 
-		Impl(const std::unique_ptr<Graphics>& graphics) : graphics_(graphics){}
+		Impl(void){}
 	};
 
-	Texture::Texture(const std::unique_ptr<Graphics>& graphics) : impl_(std::make_unique<Impl>(graphics)){}
+	Texture::Texture(void) : impl_(std::make_unique<Impl>()){}
 	Texture::~Texture() = default;
 
 	void Texture::LoadTexture(const std::string& filename)
@@ -57,7 +56,7 @@ namespace Prizm
 		{
 			if (succeeded(LoadFromTGAFile(wpath.c_str(), nullptr, *img)))
 			{
-				CreateShaderResourceView(impl_->graphics_->GetDevice().Get(), img->GetImages(), img->GetImageCount(), img->GetMetadata(), &impl_->srv_);
+				CreateShaderResourceView(Graphics::GetDevice().Get(), img->GetImages(), img->GetImageCount(), img->GetMetadata(), &impl_->srv_);
 
 				// get srv from img
 				D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -83,7 +82,7 @@ namespace Prizm
 
 		if (succeeded(LoadFromWICFile(wpath.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, *img)))
 		{
-			CreateShaderResourceView(impl_->graphics_->GetDevice().Get(), img->GetImages(), img->GetImageCount(), img->GetMetadata(), &impl_->srv_);
+			CreateShaderResourceView(Graphics::GetDevice().Get(), img->GetImages(), img->GetImageCount(), img->GetMetadata(), &impl_->srv_);
 
 			// get srv from img
 			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -107,10 +106,10 @@ namespace Prizm
 
 	void Texture::SetPSTexture(UINT register_slot, UINT num_views)
 	{
-		impl_->graphics_->GetDeviceContext()->PSSetShaderResources(register_slot, num_views, impl_->srv_.GetAddressOf());
+		Graphics::GetDeviceContext()->PSSetShaderResources(register_slot, num_views, impl_->srv_.GetAddressOf());
 	}
 
-	const DirectX::SimpleMath::Vector2& Texture::GetTextureSize(void)
+	const DirectX::SimpleMath::Vector2 Texture::GetTextureSize(void)
 	{
 		return DirectX::SimpleMath::Vector2(static_cast<float>(impl_->width_), static_cast<float>(impl_->height_));
 	}

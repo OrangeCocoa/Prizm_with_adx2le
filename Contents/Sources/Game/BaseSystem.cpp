@@ -85,9 +85,9 @@ namespace Prizm
 #endif
 		Input::Initialize();
 
-		if (!impl_->window_->Init()) return false;
+		if (!impl_->window_->Initialize()) return false;
 
-		if (!impl_->game_manager_->Init(impl_->window_->GetWindowHandle())) return false;
+		if (!impl_->game_manager_->Initialize(impl_->window_->GetWindowHandle())) return false;
 
 		return true;
 	}
@@ -101,10 +101,10 @@ namespace Prizm
 	{
 		Log::Finalize();
 
-		impl_->window_->Exit();
+		impl_->window_->Finalize();
 		impl_->window_.reset();
 
-		impl_->game_manager_->Exit();
+		impl_->game_manager_->Finalize();
 		impl_->game_manager_.reset();
 
 		impl_.reset();

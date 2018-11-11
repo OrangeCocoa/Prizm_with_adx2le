@@ -26,8 +26,8 @@ namespace Prizm
 		Window();
 		~Window();
 
-		bool Init(void);
-		void Exit(void);
+		bool Initialize(void);
+		void Finalize(void);
 
 		HWND GetWindowHandle(void);
 	};

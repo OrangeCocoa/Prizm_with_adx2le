@@ -27,14 +27,13 @@ namespace Prizm
 		static Microsoft::WRL::ComPtr<ID3D11Device> device_;
 		Buffer	vertex_buffer_;
 		Buffer	index_buffer_;
-		Buffer	constant_buffer_;
 		TopologyType topology_;
-		std::vector<DefaultVertexBufferData2D> vertex_2D_;
+		std::vector<VertexBuffer2D> vertex_2D_;
 
 	public:
 		template<class VertexBufferType>
 		Geometry(const std::vector<VertexBufferType>& vertices, const std::vector<unsigned>& indices, TopologyType topology)
-		{
+		{//3D
 			BufferDesc buffer_desc = {};
 
 			buffer_desc.type = BufferType::VERTEX_BUFFER;
@@ -52,10 +51,12 @@ namespace Prizm
 
 			index_buffer_ = Buffer(buffer_desc);
 			index_buffer_.Initialize(device_.Get(), static_cast<const void*>(indices.data()));
+
+			topology_ = topology;
 		}
 		
-		Geometry(const std::vector<DefaultVertexBufferData2D>& vertices, const std::vector<unsigned>& indices, BufferUsage vertex_usage)
-		{
+		Geometry(const std::vector<VertexBuffer2D>& vertices, const std::vector<unsigned>& indices, BufferUsage vertex_usage)
+		{//2D
 			BufferDesc buffer_desc = {};
 
 			buffer_desc.type = BufferType::VERTEX_BUFFER;
@@ -75,30 +76,8 @@ namespace Prizm
 
 			index_buffer_ = Buffer(buffer_desc);
 			index_buffer_.Initialize(device_.Get(), static_cast<const void*>(indices.data()));
-		}
 
-		template<class ConstantBufferType>
-		void CreateConstantBuffer(ConstantBufferType& data)
-		{
-			BufferDesc buffer = {};
-
-			buffer.type = BufferType::CONSTANT_BUFFER;
-			buffer.usage = BufferUsage::STATIC_RW;
-			buffer.stride = sizeof(ConstantBufferType);
-			buffer.element_count = 1;
-
-			constant_buffer_ = Buffer(buffer);
-			constant_buffer_.Initialize(device_.Get(), &data);
-		}
-
-		template<class ConstantBufferType>
-		void UpdateConstantBuffer(Microsoft::WRL::ComPtr<ID3D11DeviceContext>& dc, ConstantBufferType& cb, UINT register_slot, UINT buffer_num)
-		{
-			if (constant_buffer_.buffer_data)
-			{
-				dc->UpdateSubresource(constant_buffer_.buffer_data.Get(), 0, 0, &cb, 0, 0);
-				dc->VSSetConstantBuffers(register_slot, buffer_num, constant_buffer_.buffer_data.GetAddressOf());
-			}
+			topology_ = TopologyType::LINE_LIST;
 		}
 
 		void Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext>&);

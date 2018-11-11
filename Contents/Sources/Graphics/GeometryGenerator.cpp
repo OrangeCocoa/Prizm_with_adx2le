@@ -10,7 +10,7 @@ namespace Prizm
 {
 	namespace GeometryGenerator
 	{
-		void CalculateTangentsAndBitangents(std::vector<DefaultVertexBufferData3D>& vertices, const std::vector<unsigned> indices)
+		void CalculateTangentsAndBitangents(std::vector<VertexBuffer3D>& vertices, const std::vector<unsigned> indices)
 		{
 			const size_t vertices_count = vertices.size();
 			const size_t indices_count = indices.size();
@@ -20,9 +20,9 @@ namespace Prizm
 
 			for (size_t i = 0; i < indices_count; i += 3)
 			{
-				DefaultVertexBufferData3D& v0 = vertices[indices[i]];
-				DefaultVertexBufferData3D& v1 = vertices[indices[i + 1]];
-				DefaultVertexBufferData3D& v2 = vertices[indices[i + 2]];
+				VertexBuffer3D& v0 = vertices[indices[i]];
+				VertexBuffer3D& v1 = vertices[indices[i + 1]];
+				VertexBuffer3D& v2 = vertices[indices[i + 2]];
 
 				const DirectX::SimpleMath::Vector4 E1 = v1.position - v0.position;
 				const DirectX::SimpleMath::Vector4 E2 = v2.position - v0.position;
@@ -69,11 +69,11 @@ namespace Prizm
 			}
 		}
 
-		Geometry Triangle2D(float scale)
+		Geometry Triangle2D(float scale, float center_x, float center_y)
 		{
 			const float& size = scale;
 
-			std::vector<DefaultVertexBufferData2D> vertices(3);
+			std::vector<VertexBuffer2D> vertices(3);
 			std::vector<unsigned> indices = { 0, 1, 2 };
 
 			// vertices - CW
@@ -89,6 +89,12 @@ namespace Prizm
 			vertices[2].uv = DirectX::SimpleMath::Vector2(1.0f, 1.0f);
 			vertices[2].color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
+			for (auto& vertex : vertices)
+			{
+				vertex.position.x += center_x;
+				vertex.position.y += center_y;
+			}
+
 			return Geometry(vertices, indices, BufferUsage::DYNAMIC);
 		}
 
@@ -96,7 +102,7 @@ namespace Prizm
 		{
 			const float& size = scale;
 
-			std::vector<DefaultVertexBufferData3D> vertices(3);
+			std::vector<VertexBuffer3D> vertices(3);
 			std::vector<unsigned> indices = { 0, 1, 2 };
 
 			// vertices - CW
@@ -119,7 +125,8 @@ namespace Prizm
 			return Geometry(vertices, indices, TopologyType::TRIANGLE_LIST);
 		}
 
-		Geometry Quad2D(float width, float height)
+		// 
+		Geometry Quad2D(float width, float height, float center_x, float center_y)
 		{
 			const float width_half = width / 2;
 			const float height_half = height / 2;
@@ -134,7 +141,7 @@ namespace Prizm
 				2, 3, 0
 			};
 
-			std::vector<DefaultVertexBufferData2D> vertices(4);
+			std::vector<VertexBuffer2D> vertices(4);
 
 			// vertices - CW
 			vertices[0].position = DirectX::SimpleMath::Vector2(-width_half, -height_half);
@@ -153,6 +160,12 @@ namespace Prizm
 			vertices[3].uv = DirectX::SimpleMath::Vector2(1.0f, 1.0f);
 			vertices[3].color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
+			for (auto& vertex : vertices)
+			{
+				vertex.position.x += center_x;
+				vertex.position.y += center_y;
+			}
+
 			return Geometry(vertices, indices, BufferUsage::DYNAMIC);
 		}
 
@@ -170,7 +183,7 @@ namespace Prizm
 				2, 3, 0
 			};
 
-			std::vector<DefaultVertexBufferData3D> vertices(4);
+			std::vector<VertexBuffer3D> vertices(4);
 
 			// vertices - CW
 			vertices[0].position = DirectX::SimpleMath::Vector4(-size, -size, 0.0f, 1.0f);
@@ -197,8 +210,33 @@ namespace Prizm
 			return Geometry(vertices, indices, TopologyType::TRIANGLE_LIST);
 		}
 
-		Geometry QuadField(float width, float height)
-		{
+		Geometry QuadFieldStrip(float width, float height)
+		{// Line Strip
+			// separate_x * separate_z = all quad mesh num
+			unsigned int separate_x = static_cast<int>(width) / 5 * 2;
+			unsigned int separate_z = static_cast<int>(height) / 5 * 2;
+
+			// position of first vertex
+			float first_x = -width / 2;
+			float first_z = height / 2;
+
+			// one mesh width and height
+			float padding_x = width / separate_x;
+			float padding_z = height / separate_z;
+
+			std::vector<VertexBuffer3D> vertices;
+
+			unsigned int x_vertex_num = separate_x + 1;
+			unsigned int z_vertex_num = separate_z + 1;
+
+			std::vector<unsigned> indices;
+
+			CalculateTangentsAndBitangents(vertices, indices);
+			return Geometry(vertices, indices, TopologyType::TRIANGLE_LIST);
+		}
+
+		Geometry QuadFieldList(float width, float height)
+		{// Line List
 			// separate_x * separate_z = all quad mesh num
 			unsigned int separate_x = static_cast<int>(width) / 5 * 2;
 			unsigned int separate_z = static_cast<int>(height) / 5 * 2;
@@ -221,7 +259,7 @@ namespace Prizm
 			float padding_x = width / separate_x;
 			float padding_z = height / separate_z;
 
-			std::vector<DefaultVertexBufferData3D> vertices;
+			std::vector<VertexBuffer3D> vertices;
 
 			unsigned int x_vertex_num = separate_x + 1;
 			unsigned int z_vertex_num = separate_z + 1;
@@ -232,7 +270,7 @@ namespace Prizm
 				{
 					if (z % 2 == 0)
 					{
-						DefaultVertexBufferData3D vertex;
+						VertexBuffer3D vertex;
 						vertex.position = DirectX::SimpleMath::Vector4(first_x + padding_x * x, 0.0f, first_z - padding_z * z, 1.0f);
 						vertex.normal = DirectX::SimpleMath::Vector3(0.0f, 0.0f, -1.0f);
 						vertex.uv = DirectX::SimpleMath::Vector2(0.0f, 0.0f);
@@ -252,7 +290,7 @@ namespace Prizm
 					}
 					else
 					{
-						DefaultVertexBufferData3D vertex;
+						VertexBuffer3D vertex;
 
 						vertex.position = DirectX::SimpleMath::Vector4(first_x + padding_x * x, 0.0f, first_z - padding_z * z, 1.0f);
 						vertex.normal = DirectX::SimpleMath::Vector3(0.0f, 0.0f, -1.0f);
@@ -311,7 +349,7 @@ namespace Prizm
 
 		Geometry Cube(void)
 		{
-			std::vector<DefaultVertexBufferData3D> vertices(24);
+			std::vector<VertexBuffer3D> vertices(24);
 			const std::vector<unsigned> indices =
 			{
 				0, 1, 2, 0, 2, 3,		// Top
@@ -466,7 +504,7 @@ namespace Prizm
 
 		Geometry Sphere(float radius, unsigned ring_count, unsigned slice_count)
 		{
-			std::vector<DefaultVertexBufferData3D> vertices;
+			std::vector<VertexBuffer3D> vertices;
 			float d_phi = DirectX::XM_PI / (ring_count - 1);
 			for (float phi = -DirectX::XM_PIDIV2; phi <= DirectX::XM_PIDIV2 + 0.00001f; phi += d_phi)
 			{
@@ -476,7 +514,7 @@ namespace Prizm
 				float d_theta = 2.0f * DirectX::XM_PI / slice_count;
 				for (unsigned j = 0; j <= slice_count; ++j)
 				{
-					DefaultVertexBufferData3D vertex;
+					VertexBuffer3D vertex;
 					float theta = j * d_theta;
 					float x = r * cosf(theta);
 					float z = r * sinf(theta);
@@ -534,7 +572,7 @@ namespace Prizm
 			float du = 1.0f / (n - 1);
 			float dv = 1.0f / (m - 1);
 
-			std::vector<DefaultVertexBufferData3D> vertices(vertCount);
+			std::vector<VertexBuffer3D> vertices(vertCount);
 			std::vector<unsigned> indices(faceCount * 3);
 
 			// position the vertices
@@ -589,7 +627,7 @@ namespace Prizm
 			// CYLINDER BODY
 			//-----------------------------------------------------------
 			// Compute vertices for each stack ring starting at the bottom and moving up.
-			std::vector<DefaultVertexBufferData3D> vertices;
+			std::vector<VertexBuffer3D> vertices;
 			for (unsigned i = 0; i < ring_count; ++i)
 			{
 				float y = -0.5f*height + i * stack_height;
@@ -599,7 +637,7 @@ namespace Prizm
 				float d_theta = 2.0f * DirectX::XM_PI / slice_count;
 				for (unsigned j = 0; j <= slice_count; ++j)
 				{
-					DefaultVertexBufferData3D vertex;
+					VertexBuffer3D vertex;
 					float c = cosf(j*d_theta);
 					float s = sinf(j*d_theta);
 					vertex.position = DirectX::SimpleMath::Vector4(r*c, y, r*s, 0);
@@ -657,7 +695,7 @@ namespace Prizm
 					float u = x / height + 0.5f;
 					float v = z / height + 0.5f;
 
-					DefaultVertexBufferData3D vert;
+					VertexBuffer3D vert;
 					vert.position = DirectX::SimpleMath::Vector4(x, y, z, 0);
 					vert.normal = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
 					vert.tangent = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);	// ?
@@ -666,7 +704,7 @@ namespace Prizm
 				}
 
 				// Cap center vertex.
-				DefaultVertexBufferData3D cap_center;
+				VertexBuffer3D cap_center;
 				cap_center.position = DirectX::SimpleMath::Vector4(0.0f, y, 0.0f, 0.0f);
 				cap_center.normal = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
 				cap_center.tangent = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
@@ -701,7 +739,7 @@ namespace Prizm
 					float u = x / height + 0.5f;
 					float v = z / height + 0.5f;
 
-					DefaultVertexBufferData3D vert;
+					VertexBuffer3D vert;
 					vert.position = DirectX::SimpleMath::Vector4(x, y, z, 0);
 					vert.normal = DirectX::SimpleMath::Vector3(0.0f, -1.0f, 0.0f);
 					vert.tangent = DirectX::SimpleMath::Vector3(-1.0f, 0.0f, 0.0f);	// ?
@@ -709,7 +747,7 @@ namespace Prizm
 					vertices.push_back(vert);
 				}
 				// Cap center vertex.
-				DefaultVertexBufferData3D cap_center;
+				VertexBuffer3D cap_center;
 				cap_center.position = DirectX::SimpleMath::Vector4(0.0f, y, 0.0f, 0.0f);
 				cap_center.normal = DirectX::SimpleMath::Vector3(0.0f, -1.0f, 0.0f);
 				cap_center.tangent = DirectX::SimpleMath::Vector3(-1.0f, 0.0f, 0.0f);

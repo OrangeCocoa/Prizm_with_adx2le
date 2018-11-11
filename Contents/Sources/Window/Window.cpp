@@ -22,11 +22,11 @@ namespace Prizm
 		void InitRawInputDevices(void)
 		{
 			// register touch window for raw input
-			if (GetSystemMetrics(SM_DIGITIZER) & NID_MULTI_INPUT)
+			/*if (GetSystemMetrics(SM_DIGITIZER) & NID_MULTI_INPUT)
 			{
 				RegisterTouchWindow(window_handle_, 0);
 				multi_touch_enable_ = true;
-			}
+			}*/
 
 			// register mouse for raw input
 			// https://msdn.microsoft.com/en-us/library/windows/desktop/ms645565.aspx
@@ -134,13 +134,13 @@ namespace Prizm
 		case WM_MBUTTONDOWN:
 		case WM_LBUTTONDOWN:
 		case WM_RBUTTONDOWN:
-			if (Input::IsMouseCaptured())	Input::KeyDown((KeyCode)w_param);
+			if (Input::IsMouseCaptured())	Input::KeyDown(static_cast<KeyCode>(w_param));
 			break;
 
 		case WM_MBUTTONUP:
 		case WM_RBUTTONUP:
 		case WM_LBUTTONUP:
-			if (Input::IsMouseCaptured()) Input::KeyUp((KeyCode)w_param);
+			if (Input::IsMouseCaptured()) Input::KeyUp(static_cast<KeyCode>(w_param));
 			break;
 
 		case WM_INPUT:
@@ -202,7 +202,7 @@ namespace Prizm
 
 	Window::~Window() = default;
 
-	bool Window::Init(void)
+	bool Window::Initialize(void)
 	{
 		WNDCLASSEX  wc;
 
@@ -214,7 +214,7 @@ namespace Prizm
 		wc.hInstance = GetModuleHandleA(nullptr);
 		wc.hIcon = LoadIconA(0, IDI_APPLICATION);
 		wc.hCursor = LoadCursorA(0, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)GetStockObject(DKGRAY_BRUSH);
+		wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(DKGRAY_BRUSH));
 		wc.lpszClassName = window_caption<LPCSTR>;
 		wc.hIconSm = LoadIconA(0, IDI_APPLICATION);
 
@@ -252,7 +252,7 @@ namespace Prizm
 		return true;
 	}
 
-	void Window::Exit(void)
+	void Window::Finalize(void)
 	{
 		DestroyWindow(impl_->window_handle_);
 		impl_->window_handle_ = nullptr;

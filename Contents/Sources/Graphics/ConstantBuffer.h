@@ -38,5 +38,25 @@ namespace Prism
 	{
 		DirectX::SimpleMath::Matrix view;
 		DirectX::SimpleMath::Matrix proj;
+		float						overlay_alpha_;
+	};
+
+	struct ConstantBuffferScene
+	{
+		DirectX::SimpleMath::Matrix		view;
+		DirectX::SimpleMath::Matrix		proj;
+		DirectX::SimpleMath::Vector4	screen_param;
+		DirectX::SimpleMath::Vector4	frustum_corner;
+		DirectX::SimpleMath::Matrix		last_view;
+		DirectX::SimpleMath::Matrix		last_proj;
+		float							exposureTime;
+		int								pad[3];
+	};
+
+	struct ConstantBuffferPointLight
+	{
+		DirectX::SimpleMath::Vector3 pos;
+		DirectX::SimpleMath::Vector4 color;
+		DirectX::SimpleMath::Vector4 atten;
 	};
 }

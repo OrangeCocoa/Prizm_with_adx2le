@@ -9,6 +9,15 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Source\Renderer">
+      <UniqueIdentifier>{9279e8f2-89ab-44a1-9436-d163bcda636d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Renderer">
+      <UniqueIdentifier>{9ca3f9dc-a6de-4427-85a5-22f8914640b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Shader">
+      <UniqueIdentifier>{01cfdeaa-b13b-458f-b606-9d8773442bd7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\Graphics\GeometryGenerator.cpp">
@@ -31,6 +40,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Sources\Graphics\ImguiManager.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Graphics\RenderTarget.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Graphics\ShadowRenderer.cpp">
+      <Filter>Source\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Graphics\TileRenderer.cpp">
+      <Filter>Source\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -58,5 +76,30 @@
     <ClInclude Include="..\..\Sources\Graphics\ImguiManager.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Sources\Graphics\RenderTarget.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Graphics\ShadowRenderer.h">
+      <Filter>Header\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Graphics\TileRenderer.h">
+      <Filter>Header\Renderer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\Sources\Graphics\Shaders\TileForward_cs.hlsl">
+      <Filter>Source\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Sources\Graphics\Shaders\2D.hlsl">
+      <Filter>Source\Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Sources\Graphics\Shaders\LightBuffer.hlsli">
+      <Filter>Source\Shader</Filter>
+    </None>
+    <None Include="..\..\Sources\Graphics\Shaders\NormalDepth.hlsli">
+      <Filter>Source\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

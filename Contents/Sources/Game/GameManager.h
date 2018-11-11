@@ -17,8 +17,8 @@ namespace Prizm
 		GameManager(void);
 		~GameManager(void);
 
-		bool Init(HWND);
+		bool Initialize(HWND);
 		bool Run(void);
-		void Exit(void);
+		void Finalize(void);
 	};
 }

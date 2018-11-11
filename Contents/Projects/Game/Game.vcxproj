@@ -164,12 +164,28 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\Game\BaseSystem.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Camera.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Entity\BackGround.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Entity\GroundField.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Entity\Player3D.cpp" />
     <ClCompile Include="..\..\Sources\Game\EntryPoint.cpp" />
     <ClCompile Include="..\..\Sources\Game\GameManager.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Light.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Scenes\BaseScene.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Scenes\MainGameScene.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Scenes\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Sources\Game\BaseSystem.h" />
+    <ClInclude Include="..\..\Sources\Game\Camera.h" />
+    <ClInclude Include="..\..\Sources\Game\Entity\BackGround.h" />
+    <ClInclude Include="..\..\Sources\Game\Entity\GroundField.h" />
     <ClInclude Include="..\..\Sources\Game\GameManager.h" />
+    <ClInclude Include="..\..\Sources\Game\Light.h" />
+    <ClInclude Include="..\..\Sources\Game\SceneManager.h" />
+    <ClInclude Include="..\..\Sources\Game\Scenes\BaseScene.h" />
+    <ClInclude Include="..\..\Sources\Game\Scenes\MainGameScene.h" />
+    <ClInclude Include="..\..\Sources\Game\Scenes\TitleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

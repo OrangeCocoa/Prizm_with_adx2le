@@ -20,6 +20,9 @@
     <ClCompile Include="..\..\Sources\Framework\Log.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Sources\Framework\Entity.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Sources\Framework\PerfTimer.h">
@@ -29,6 +32,12 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Sources\Framework\Log.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\ResourcePool.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\Entity.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

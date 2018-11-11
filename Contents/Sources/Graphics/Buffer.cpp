@@ -34,9 +34,9 @@ namespace Prizm
 		}
 	}
 
-	void Buffer::Update(std::unique_ptr<Graphics>& graphics, const void* data)
+	void Buffer::Update(const void* data)
 	{// Dynamically change buffer data.
-		auto ctx = graphics->GetDeviceContext();
+		auto ctx = Graphics::GetDeviceContext();
 
 		D3D11_MAPPED_SUBRESOURCE mapped_resource = {};
 		constexpr UINT subresource = 0;

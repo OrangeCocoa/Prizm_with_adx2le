@@ -54,19 +54,19 @@ namespace Prizm
 		void Initialize(ID3D11Device* = nullptr, _In_ const void* = nullptr);
 
 		// dynamic only
-		void Update(std::unique_ptr<Graphics>&, _In_ const void*);
+		void Update(_In_ const void*);
 
 		void CleanUp(void);
 	};
 
-	struct DefaultVertexBufferData2D
+	struct VertexBuffer2D
 	{// input layout
 		DirectX::SimpleMath::Vector2 position;
 		DirectX::SimpleMath::Vector4 color;
 		DirectX::SimpleMath::Vector2 uv;
 	};
 	
-	struct DefaultVertexBufferData3D
+	struct VertexBuffer3D
 	{// input layout
 		DirectX::SimpleMath::Vector4 position;
 		DirectX::SimpleMath::Vector4 color;

@@ -9,6 +9,18 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Source\Scenes">
+      <UniqueIdentifier>{4c3aac81-c93a-4b37-bf20-0aee7f2b738d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Scenes">
+      <UniqueIdentifier>{dcf4b593-b5de-4398-a197-d5f130640554}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Entity">
+      <UniqueIdentifier>{54955853-1f7c-409c-b344-0451ead7441a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Entity">
+      <UniqueIdentifier>{1ecf18a6-ae04-426e-8f9c-e3251c20bab9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\Game\BaseSystem.cpp">
@@ -20,6 +32,30 @@
     <ClCompile Include="..\..\Sources\Game\GameManager.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Camera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Light.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Scenes\BaseScene.cpp">
+      <Filter>Source\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Scenes\MainGameScene.cpp">
+      <Filter>Source\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Entity\GroundField.cpp">
+      <Filter>Source\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Entity\BackGround.cpp">
+      <Filter>Source\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Entity\Player3D.cpp">
+      <Filter>Source\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Scenes\TitleScene.cpp">
+      <Filter>Source\Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Sources\Game\BaseSystem.h">
@@ -27,6 +63,30 @@
     </ClInclude>
     <ClInclude Include="..\..\Sources\Game\GameManager.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Camera.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Light.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Scenes\MainGameScene.h">
+      <Filter>Header\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Scenes\BaseScene.h">
+      <Filter>Header\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Entity\GroundField.h">
+      <Filter>Header\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\SceneManager.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Entity\BackGround.h">
+      <Filter>Header\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Scenes\TitleScene.h">
+      <Filter>Header\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

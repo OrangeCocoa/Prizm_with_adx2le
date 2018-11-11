@@ -10,8 +10,6 @@
 
 namespace Prizm
 {
-	class Graphics;
-
 	enum TextureUsage : unsigned
 	{
 		RESOURCE = D3D11_BIND_SHADER_RESOURCE,
@@ -61,12 +59,12 @@ namespace Prizm
 		std::unique_ptr<Impl> impl_;
 
 	public:
-		Texture(const std::unique_ptr<Graphics>&);
+		Texture(void);
 		~Texture(void);
 
 		void LoadTexture(const std::string&);
 		void SetPSTexture(UINT register_slot, UINT num_views);
 
-		const DirectX::SimpleMath::Vector2& GetTextureSize(void);
+		const DirectX::SimpleMath::Vector2 GetTextureSize(void);
 	};
 }

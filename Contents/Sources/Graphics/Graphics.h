@@ -62,23 +62,18 @@ namespace Prizm
 		DEPTH_STENCIL_STATE_MAX
 	};
 
-	class Graphics
+	namespace Graphics
 	{
-	private:
-		class Impl;
-		std::unique_ptr<Impl> impl_;
-
-	public:
-		Graphics();
-		~Graphics();
-
-		bool Init(int width, int height, const bool vsync, HWND hwnd, const bool FULL_SCREEN);
-		void Exit(void);
+		bool Initialize(int width, int height, const bool vsync, HWND hwnd, const bool FULL_SCREEN);
+		void Finalize(void);
 
 		void BeginFrame(void);
 		void EndFrame(void);
 
 		bool ChangeWindowMode(void);
+
+		void SetRenderTarget(unsigned int);
+		void RenderTargetClear(void);
 		void DepthClear(void);
 
 		void SetBlendState(BlendStateType type);
@@ -89,5 +84,16 @@ namespace Prizm
 		Microsoft::WRL::ComPtr<ID3D11Device>&			GetDevice(void);
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>&	GetDeviceContext(void);
 		HWND GetWindowHandle(void);
-	};
+	}
 }
+
+/*
+lua
+network
+bullet3
+effekseer
+self controller
+
+
+cocos2dx
+*/

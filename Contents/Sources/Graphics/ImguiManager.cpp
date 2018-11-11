@@ -26,14 +26,14 @@ namespace Prizm
 	ImguiManager::ImguiManager() : impl_(std::make_unique<Impl>()){}
 	ImguiManager::~ImguiManager() = default;
 
-	void ImguiManager::Initialize(const std::unique_ptr<Graphics>& graphics)
+	void ImguiManager::Initialize(void)
 	{
 		// Setup ImGui binding
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-		ImGui_ImplWin32_Init(graphics->GetWindowHandle());
-		ImGui_ImplDX11_Init(graphics->GetDevice().Get(), graphics->GetDeviceContext().Get());
+		ImGui_ImplWin32_Init(Graphics::GetWindowHandle());
+		ImGui_ImplDX11_Init(Graphics::GetDevice().Get(), Graphics::GetDeviceContext().Get());
 
 		// Setup style
 		ImGui::StyleColorsClassic();

@@ -19,13 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Sources\Framework\Entity.cpp" />
     <ClCompile Include="..\..\Sources\Framework\Log.cpp" />
     <ClCompile Include="..\..\Sources\Framework\PerfTimer.cpp" />
     <ClCompile Include="..\..\Sources\Framework\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Sources\Framework\Entity.h" />
     <ClInclude Include="..\..\Sources\Framework\Log.h" />
     <ClInclude Include="..\..\Sources\Framework\PerfTimer.h" />
+    <ClInclude Include="..\..\Sources\Framework\ResourcePool.h" />
     <ClInclude Include="..\..\Sources\Framework\Utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
