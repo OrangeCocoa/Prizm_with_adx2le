@@ -20,6 +20,12 @@ namespace Prizm
 		std::unique_ptr<Shader> shader_;
 		std::unique_ptr<Texture> texture_;
 
+		unsigned int object_shader_;
+		unsigned int player_texture_;
+
+		CostantBufferMatrix3DSimple cb_;
+		ConstantBufferObject cb_object_;
+
 		Impl() : shader_(std::make_unique<Shader>()){}
 	};
 
@@ -27,28 +33,21 @@ namespace Prizm
 	{
 		impl_->texture_ = std::make_unique<Texture>();
 	}
+
 	Player3D::~Player3D(void) = default;
 
 	bool Player3D::Initialize(void)
 	{
 		impl_->geometry_ = std::make_unique<Geometry>(GeometryGenerator::Cube());
 
-		return true;
-	}
+		impl_->cb_.world = DirectX::SimpleMath::Matrix::Identity;
+		impl_->cb_.view = DirectX::SimpleMath::Matrix::Identity;
+		impl_->cb_.proj = DirectX::SimpleMath::Matrix::Identity;
 
-	bool Player3D::Init(const std::unique_ptr<Camera>& camera)
-	{
-		CostantBufferMatrix3DSimple cb;
-
-		cb.world = DirectX::SimpleMath::Matrix::Identity;
-		cb.view = camera->GetViewMatrix();
-		cb.proj = camera->GetProjectionMatrix();
-
-		impl_->shader_->CreateConstantBuffer(Graphics::GetDevice(), cb);
-
-		LoadShader("Texture.hlsl");
+		impl_->shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_);
 
 		Log::Info("Player3D initialize succeeded.");
+
 		return true;
 	}
 
@@ -57,26 +56,8 @@ namespace Prizm
 
 	}
 
-	void Player3D::Draw(const std::unique_ptr<Camera>& camera)
+	void Player3D::Draw(void)
 	{
-		DirectX::SimpleMath::Matrix matRotX, matRotY;
-
-		static float Y = 0.0f;
-		Y += 0.02f;
-
-		if (Input::IsTouchPress(Input::max_touchcount - 1))
-		{
-			Y += 10.0f;
-		}
-
-		DirectX::XMStoreFloat4x4(&matRotX, DirectX::XMMatrixRotationX(Y * DirectX::XM_PI / 180.0f));
-		DirectX::XMStoreFloat4x4(&matRotY, DirectX::XMMatrixRotationY(Y * DirectX::XM_PI / 180.0f));
-
-		CostantBufferMatrix3DSimple cb;
-		cb.world = matRotY * matRotX;
-		cb.view = camera->GetViewMatrix();
-		cb.proj = camera->GetProjectionMatrix();
-
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> device_context = Graphics::GetDeviceContext();
 
 		impl_->shader_->SetInputLayout(device_context);
@@ -84,23 +65,22 @@ namespace Prizm
 		impl_->shader_->SetShader(device_context, ShaderType::PS);
 
 		Graphics::SetRasterizerState(RasterizerStateType::CULL_BACK);
-		Graphics::SetDepthStencilState(DepthStencilStateType::DEPTH_WRITE);
+		Graphics::SetDepthStencilState(DepthStencilStateType::DEPTH_STENCIL_WRITE);
 		Graphics::SetBlendState(BlendStateType::ALIGNMENT_BLEND);
 
 		impl_->texture_->SetPSTexture(0, 1);
 
 		device_context->PSSetSamplers(0, 1, Graphics::GetSamplerState(SamplerStateType::LINEAR_FILTER_SAMPLER).GetAddressOf());
 
-		impl_->shader_->UpdateConstantBuffer(Graphics::GetDeviceContext(), cb, ShaderType::VS, 0, 1);
+		impl_->shader_->UpdateConstantBuffer(Graphics::GetDeviceContext(), impl_->cb_, ShaderType::VS, 0, 1);
 		impl_->geometry_->Draw(device_context);
-	}
-
-	void Player3D::Draw(void)
-	{
 	}
 
 	void Player3D::Finalize(void)
 	{
+		impl_->geometry_.reset();
+		impl_->shader_.reset();
+		impl_->texture_.reset();
 	}
 
 	bool Player3D::LoadShader(const std::string& shader_name)
@@ -119,10 +99,31 @@ namespace Prizm
 
 		return true;
 	}
+
 	bool Player3D::LoadTexture(const std::string& tex_name)
 	{
-		impl_->texture_->LoadTexture(tex_name); //"wall00.jpg"
+		impl_->texture_->LoadTexture(tex_name);
 
 		return true;
+	}
+
+	void Player3D::SetConstantBuffer(const std::unique_ptr<Camera>& camera)
+	{
+		DirectX::SimpleMath::Matrix matRotX, matRotY;
+
+		static float Y = 0.0f;
+		Y += 0.02f;
+
+		if (Input::IsTouchPress(Input::max_touchcount - 1))
+		{
+			Y += 10.0f;
+		}
+
+		DirectX::XMStoreFloat4x4(&matRotX, DirectX::XMMatrixRotationX(Y * DirectX::XM_PI / 180.0f));
+		DirectX::XMStoreFloat4x4(&matRotY, DirectX::XMMatrixRotationY(Y * DirectX::XM_PI / 180.0f));
+
+		impl_->cb_.world = matRotY * matRotX;
+		impl_->cb_.view = camera->GetViewMatrix();
+		impl_->cb_.proj = camera->GetProjectionMatrix();
 	}
 }

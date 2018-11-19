@@ -93,6 +93,9 @@
     <FxCompile Include="..\..\Sources\Graphics\Shaders\ShadowMap.hlsl">
       <Filter>Source\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="..\..\Sources\Graphics\Shaders\Object.hlsl">
+      <Filter>Source\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Sources\Graphics\Shaders\LightBuffer.hlsli">

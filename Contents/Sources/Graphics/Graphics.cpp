@@ -4,12 +4,10 @@
 #include<DirectXTK/SimpleMath.h>
 
 #include"Graphics.h"
-#include"RenderTarget.h"
 #include"ConstantBuffer.h"
 #include"Geometry.h"
 #include"Shader.h"
 #include"Texture.h"
-#include"GeometryGenerator.h"
 #include"..\Framework\ResourcePool.h"
 #include"..\Framework\Utils.h"
 #include"..\Framework\Log.h"
@@ -27,8 +25,6 @@ namespace Prizm
 		Microsoft::WRL::ComPtr<IDXGISwapChain>								swap_chain_;
 
 		std::vector<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>>			render_targets_;
-		unsigned int														back_RT_index_;
-		unsigned int														shadow_RT_index_;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>					shadow_resource_;
 
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>						depth_stencil_view_;
@@ -227,7 +223,7 @@ namespace Prizm
 			sample_desc_.Quality = 0;
 
 			// Forward MSAA is criticaly 
-			MSAASampleCheck();
+			//MSAASampleCheck();
 
 			DXGI_SWAP_CHAIN_DESC swap_chain_desc;
 			memset(&swap_chain_desc, 0, sizeof(swap_chain_desc));
@@ -236,7 +232,7 @@ namespace Prizm
 
 			swap_chain_desc.BufferDesc.Width = window_width<int>;
 			swap_chain_desc.BufferDesc.Height = window_height<int>;
-			swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+			swap_chain_desc.BufferDesc.Format = static_cast<DXGI_FORMAT>(ImageFormat::RGBA8UN);
 
 			if (vsync_enabled_)
 			{	// Set the refresh rate of the back buffer.
@@ -316,29 +312,21 @@ namespace Prizm
 			return true;
 		}
 
-		const unsigned int CreateRenderTargetView(void)
+		bool CreateDefaultRenderTargetView(void)
 		{
-			render_targets_.emplace_back();
-			auto index = render_targets_.size() - 1;
-
 			Microsoft::WRL::ComPtr<ID3D11Texture2D> tex_2d;
 
 			swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), static_cast<void**>(&tex_2d));
 
-			device_->CreateRenderTargetView(tex_2d.Get(), nullptr, render_targets_[index].GetAddressOf());
+			device_->CreateRenderTargetView(tex_2d.Get(), nullptr, render_targets_[RenderTargetType::BACK_BUFFER].GetAddressOf());
 
-			return index;
+			return true;
 		}
 
-		const unsigned int CreateShadowRenderTargetView(void)
+		bool CreateShadowRenderTargetView(void)
 		{
-			render_targets_.emplace_back();
-			auto index = render_targets_.size() - 1;
-
 			Microsoft::WRL::ComPtr<ID3D11Texture2D> texture_2d;
 
-			D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
-			D3D11_RENDER_TARGET_VIEW_DESC RTVDesc = {};
 			D3D11_TEXTURE2D_DESC desc = {};
 			desc.Width = window_width<unsigned int>;
 			desc.Height = window_height<unsigned int>;
@@ -346,26 +334,42 @@ namespace Prizm
 			desc.ArraySize = 1;
 			desc.CPUAccessFlags = 0;
 			desc.MiscFlags = 0;
-			device_->CreateTexture2D(&desc, nullptr, texture_2d.GetAddressOf());
+			//device_->CreateTexture2D(&desc, nullptr, texture_2d.GetAddressOf());
 
-			desc.Format = DXGI_FORMAT_R32_FLOAT;
+			desc.Format = static_cast<DXGI_FORMAT>(ImageFormat::R32F);
 			desc.SampleDesc.Count = 1;
 			desc.SampleDesc.Quality = 0;
 			desc.Usage = D3D11_USAGE_DEFAULT;
 			desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 			device_->CreateTexture2D(&desc, nullptr, texture_2d.GetAddressOf());
 
+			D3D11_RENDER_TARGET_VIEW_DESC RTVDesc = {};
 			RTVDesc.Format = desc.Format;
 			RTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 			RTVDesc.Texture2D.MipSlice = 0;
-			device_->CreateRenderTargetView(texture_2d.Get(), &RTVDesc, render_targets_[index].GetAddressOf());
+			device_->CreateRenderTargetView(texture_2d.Get(), &RTVDesc, render_targets_[RenderTargetType::SHADOW_MAP].GetAddressOf());
 
+			D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
 			SRVDesc.Format = desc.Format;
 			SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 			SRVDesc.Texture2D.MipLevels = 1;
 			device_->CreateShaderResourceView(texture_2d.Get(), &SRVDesc, shadow_resource_.GetAddressOf());
 
-			return index;
+			return true;
+		}
+
+		bool CreateRenderTargetView(void)
+		{
+			for (unsigned int i = 0; i < RenderTargetType::RENDER_TARGET_MAX; ++i)
+			{
+				render_targets_.emplace_back();
+			}
+
+			CreateDefaultRenderTargetView();
+
+			CreateShadowRenderTargetView();
+
+			return true;
 		}
 
 		bool CreateDepthStencilView(void)
@@ -423,17 +427,33 @@ namespace Prizm
 			// MSDN: https://msdn.microsoft.com/en-us/library/windows/desktop/ff476198(v=vs.85).aspx
 			D3D11_RASTERIZER_DESC rs_desc = {};
 
-			rs_desc.FillMode = D3D11_FILL_SOLID;
+			rs_desc.FillMode = D3D11_FILL_WIREFRAME;
+			rs_desc.CullMode = D3D11_CULL_NONE;
+			rs_desc.DepthClipEnable = true;
+			rs_desc.MultisampleEnable = true;
 			rs_desc.FrontCounterClockwise = false;
 			rs_desc.DepthBias = 0;
 			rs_desc.ScissorEnable = false;
 			rs_desc.DepthBiasClamp = 0;
 			rs_desc.SlopeScaledDepthBias = 0.0f;
-			rs_desc.DepthClipEnable = true;
 			rs_desc.AntialiasedLineEnable = true;
-			rs_desc.MultisampleEnable = true;
+
+			if (failed(device_->CreateRasterizerState(&rs_desc, &rasterizer_states_[static_cast<int>(RasterizerStateType::WIRE_FRAME)])))
+			{
+				Log::Error(err + "WireFrame\n");
+				return false;
+			}
+
+			rs_desc.FillMode = D3D11_FILL_SOLID;
+
+			if (failed(device_->CreateRasterizerState(&rs_desc, &rasterizer_states_[static_cast<int>(RasterizerStateType::CULL_NONE)])))
+			{
+				Log::Error(err + "None\n");
+				return false;
+			}
 
 			rs_desc.CullMode = D3D11_CULL_BACK;
+
 			if (failed(device_->CreateRasterizerState(&rs_desc, &rasterizer_states_[static_cast<int>(RasterizerStateType::CULL_BACK)])))
 			{
 				Log::Error(err + "Back\n");
@@ -444,13 +464,6 @@ namespace Prizm
 			if (failed(device_->CreateRasterizerState(&rs_desc, &rasterizer_states_[static_cast<int>(RasterizerStateType::CULL_FRONT)])))
 			{
 				Log::Error(err + "Front\n");
-				return false;
-			}
-
-			rs_desc.CullMode = D3D11_CULL_NONE;
-			if (failed(device_->CreateRasterizerState(&rs_desc, &rasterizer_states_[static_cast<int>(RasterizerStateType::CULL_NONE)])))
-			{
-				Log::Error(err + "None\n");
 				return false;
 			}
 
@@ -713,12 +726,12 @@ namespace Prizm
 
 			if (!CreateDepthStencilView()) return false;
 
-			device_context_->OMSetRenderTargets(1, render_targets_[back_RT_index_].GetAddressOf(), depth_stencil_view_.Get());
+			device_context_->OMSetRenderTargets(1, render_targets_[RenderTargetType::BACK_BUFFER].GetAddressOf(), depth_stencil_view_.Get());
 
 			return true;
 		}
 
-		bool Graphics::Initialize(int width, int height, const bool vsync, HWND hwnd, const bool FULL_SCREEN)
+		bool Initialize(int width, int height, const bool vsync, HWND hwnd, const bool FULL_SCREEN)
 		{
 			vsync_enabled_ = false;
 			fullscreen_ = false;
@@ -755,13 +768,12 @@ namespace Prizm
 
 			if (!InitDeviceAndSwapChain()) return false;
 
-			back_RT_index_ = CreateRenderTargetView();
-			//shadow_RT_index_ = CreateShadowRenderTargetView();
+			if (!CreateRenderTargetView()) return false;
 
 			if (!CreateDepthStencilView()) return false;
 
 			// RenderTarget set to immediate device context
-			device_context_->OMSetRenderTargets(1, render_targets_[back_RT_index_].GetAddressOf(), depth_stencil_view_.Get());
+			device_context_->OMSetRenderTargets(1, render_targets_[RenderTargetType::BACK_BUFFER].GetAddressOf(), depth_stencil_view_.Get());
 
 			if (!CreateViewPort()) return false;
 
@@ -780,9 +792,9 @@ namespace Prizm
 			return true;
 		}
 
-		void Graphics::Finalize(void)
+		void Finalize(void)
 		{
-			ReportLiveObjects("Exit call.");
+			ReportLiveObjects("Finalize call.");
 
 			if (swap_chain_)
 			{
@@ -825,14 +837,14 @@ namespace Prizm
 			return;
 		}
 
-		void Graphics::BeginFrame(void)
+		void BeginFrame(void)
 		{
-			float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; //red, green, blue, alpha
-			device_context_->ClearRenderTargetView(render_targets_[back_RT_index_].Get(), ClearColor);
+			float clear_color[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; //red, green, blue, alpha
+			device_context_->ClearRenderTargetView(render_targets_[RenderTargetType::BACK_BUFFER].Get(), clear_color);
 			device_context_->ClearDepthStencilView(depth_stencil_view_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		}
 
-		void Graphics::EndFrame()
+		void EndFrame()
 		{
 			swap_chain_->Present(static_cast<unsigned>(vsync_enabled_), 0);
 
@@ -845,7 +857,7 @@ namespace Prizm
 			device_context_->CSSetShader(nullptr, nullptr, 0);
 		}
 
-		bool Graphics::ChangeWindowMode(void)
+		bool ChangeWindowMode(void)
 		{
 			if (!swap_chain_) return false;
 
@@ -877,36 +889,82 @@ namespace Prizm
 			return true;
 		}
 
-		void Graphics::DepthClear(void)
+		void SetRenderTarget(RenderTargetType type)
+		{
+			device_context_->OMSetRenderTargets(1, render_targets_[type].GetAddressOf(), depth_stencil_view_.Get());
+		}
+
+		void ClearRenderTargetView(RenderTargetType type, const float * clear_color)
+		{
+			device_context_->ClearRenderTargetView(render_targets_[type].Get(), clear_color);
+		}
+
+		void ClearDepthStencilView(void)
 		{
 			device_context_->ClearDepthStencilView(depth_stencil_view_.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		}
 
-		void Graphics::SetBlendState(BlendStateType type)
+		void GetViewPort(D3D11_VIEWPORT* vp)
+		{
+			UINT	VP_num = 1;
+			device_context_->RSGetViewports(&VP_num, vp);
+		}
+
+		void SetViewPort(D3D11_VIEWPORT* vp)
+		{
+			device_context_->RSSetViewports(1, vp);
+		}
+
+		void SetBlendState(BlendStateType type)
 		{
 			float blendFactor[4] = { D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO };
 			device_context_->OMSetBlendState(blend_states_[type].Get(), blendFactor, 0xffffffff);
 		}
 
-		void Graphics::SetRasterizerState(RasterizerStateType type)
+		void SetRasterizerState(RasterizerStateType type)
 		{
 			device_context_->RSSetState(rasterizer_states_[type].Get());
 		}
 
-		void Graphics::SetDepthStencilState(DepthStencilStateType type)
+		void SetDepthStencilState(DepthStencilStateType type)
 		{
 			device_context_->OMSetDepthStencilState(depth_stencil_states_[type].Get(), 0);
 		}
 
-		Microsoft::WRL::ComPtr<ID3D11SamplerState>& Graphics::GetSamplerState(SamplerStateType type)
+		Microsoft::WRL::ComPtr<ID3D11SamplerState>& GetSamplerState(SamplerStateType type)
 		{
 			return sampler_states_[type];
 		}
 
-		Microsoft::WRL::ComPtr<ID3D11Device>& Graphics::GetDevice(void) { return device_; }
+		void SetSamplerState(unsigned int shader_type, SamplerStateType ss_type, unsigned int register_slot)
+		{
+			switch (shader_type)
+			{
+			case ShaderType::VS:
+				device_context_->VSSetSamplers(register_slot, 1, &sampler_states_[ss_type]);
+				break;
+			case ShaderType::PS:
+				device_context_->PSSetSamplers(register_slot, 1, &sampler_states_[ss_type]);
+				break;
+			case ShaderType::GS:
+				device_context_->GSSetSamplers(register_slot, 1, &sampler_states_[ss_type]);
+				break;
+			case ShaderType::HS:
+				device_context_->HSSetSamplers(register_slot, 1, &sampler_states_[ss_type]);
+				break;
+			case ShaderType::DS:
+				device_context_->DSSetSamplers(register_slot, 1, &sampler_states_[ss_type]);
+				break;
+			case ShaderType::CS:
+				device_context_->CSSetSamplers(register_slot, 1, &sampler_states_[ss_type]);
+				break;
+			}
+		}
 
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext>& Graphics::GetDeviceContext(void) { return device_context_; }
+		Microsoft::WRL::ComPtr<ID3D11Device>& GetDevice(void) { return device_; }
 
-		HWND Graphics::GetWindowHandle(void) { return hwnd_; }
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext>& GetDeviceContext(void) { return device_context_; }
+
+		HWND GetWindowHandle(void) { return hwnd_; }
 	}
 }

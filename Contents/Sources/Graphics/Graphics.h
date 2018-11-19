@@ -16,12 +16,11 @@
 
 namespace Prizm
 {
-	class Camera;
-
 	// default states
 	enum RasterizerStateType
 	{
-		CULL_NONE = 0,
+		WIRE_FRAME = 0,
+		CULL_NONE,
 		CULL_FRONT,
 		CULL_BACK,
 
@@ -62,6 +61,13 @@ namespace Prizm
 		DEPTH_STENCIL_STATE_MAX
 	};
 
+	enum RenderTargetType
+	{
+		BACK_BUFFER,
+		SHADOW_MAP,
+		RENDER_TARGET_MAX
+	};
+
 	namespace Graphics
 	{
 		bool Initialize(int width, int height, const bool vsync, HWND hwnd, const bool FULL_SCREEN);
@@ -72,14 +78,17 @@ namespace Prizm
 
 		bool ChangeWindowMode(void);
 
-		void SetRenderTarget(unsigned int);
-		void RenderTargetClear(void);
-		void DepthClear(void);
+		void SetRenderTarget(RenderTargetType);
+		void ClearRenderTargetView(RenderTargetType, const float*);
+		void ClearDepthStencilView(void);
+		void GetViewPort(D3D11_VIEWPORT*);
+		void SetViewPort(D3D11_VIEWPORT*);
 
-		void SetBlendState(BlendStateType type);
-		void SetRasterizerState(RasterizerStateType type);
-		void SetDepthStencilState(DepthStencilStateType type);
-		Microsoft::WRL::ComPtr<ID3D11SamplerState>& GetSamplerState(SamplerStateType type);
+		void SetBlendState(BlendStateType);
+		void SetRasterizerState(RasterizerStateType);
+		void SetDepthStencilState(DepthStencilStateType);
+		Microsoft::WRL::ComPtr<ID3D11SamplerState>& GetSamplerState(SamplerStateType);
+		void SetSamplerState(unsigned int, SamplerStateType, unsigned int);
 
 		Microsoft::WRL::ComPtr<ID3D11Device>&			GetDevice(void);
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>&	GetDeviceContext(void);

@@ -8,12 +8,12 @@
 
 cbuffer cbCameraParam : register( b0 )
 {
-	float4	mtxView[3]			: packoffset( c0 );		// ビュー行列
-	float4	mtxProj[4]			: packoffset( c3 );		// 投影行列
-	float4	screenParam			: packoffset( c7 );		// (near, far, screenWidth, screenHeight)
-	float4	frustumCorner		: packoffset( c8 );		// ビューフラスタムの角へのベクトル
-	float4	mtxLastView[3]		: packoffset( c9 );		// 前回のビュー行列
-	float4	mtxLastProj[4]		: packoffset( c12 );	// 前回の投影行列
+	row_major matrix	mtxView			: packoffset( c0 );		// ビュー行列
+	row_major matrix	mtxProj			: packoffset( c4 );		// 投影行列
+	float4				screenParam		: packoffset( c8 );		// (near, far, screenWidth, screenHeight)
+	float4				frustumCorner	: packoffset( c9 );		// ビューフラスタムの角へのベクトル
+	row_major matrix	mtxLastView		: packoffset( c10 );	// 前回のビュー行列
+	row_major matrix	mtxLastProj		: packoffset( c14 );	// 前回の投影行列
 };
 
 struct PointLight

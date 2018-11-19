@@ -23,6 +23,9 @@
     <ClCompile Include="..\..\Sources\Framework\Entity.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Sources\Framework\Component.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Sources\Framework\PerfTimer.h">
@@ -38,6 +41,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Sources\Framework\Entity.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\Component.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

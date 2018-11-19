@@ -24,7 +24,7 @@ namespace Prizm
 		void ResizeEnd(void);
 		void BeginGui(std::string&);
 		void EndGui(void);
-		void Exit(void);
+		void Finalize(void);
 
 		void SetCameraPosition(DirectX::SimpleMath::Vector3&);
 	};

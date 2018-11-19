@@ -47,7 +47,7 @@ namespace Prizm
 
 	void Log::Finalize(void)
 	{
-		std::string msg = StrUtils::TimeStr::GetCurrentTimeAsStringWithBrackets() + "[Log] Exit()";
+		std::string msg = StrUtils::TimeStr::GetCurrentTimeAsStringWithBrackets() + "[Log] Finalize()";
 		if (out_file_.is_open())
 		{
 			out_file_ << msg;

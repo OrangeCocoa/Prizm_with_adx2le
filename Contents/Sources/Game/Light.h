@@ -5,23 +5,28 @@
 
 namespace Prizm
 {
+	constexpr unsigned int POINT_LIGHT_MAX = 1024;
+
 	struct PointLight
 	{
-		DirectX::SimpleMath::Vector4 dir_pos;
+		DirectX::SimpleMath::Vector3 pos;
 		DirectX::SimpleMath::Vector4 color;
 		DirectX::SimpleMath::Vector4 attn_power;
 	};
 
-	class Light
+	struct DirectionalLight
 	{
-	private:
-		class Impl;
-		std::unique_ptr<Impl> impl_;
+		DirectX::SimpleMath::Vector3 pos;
+		DirectX::SimpleMath::Vector3 light_dir;
+		DirectX::SimpleMath::Vector4 color;
+		DirectX::SimpleMath::Vector4 attn_power;
+	};
 
-	public:
-		Light();
-		~Light();
-
-
+	struct SpotLight
+	{
+		DirectX::SimpleMath::Vector3 pos;
+		DirectX::SimpleMath::Vector3 light_at;
+		DirectX::SimpleMath::Vector4 color;
+		DirectX::SimpleMath::Vector4 attn_power;
 	};
 }

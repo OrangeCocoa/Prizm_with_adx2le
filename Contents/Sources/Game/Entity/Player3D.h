@@ -19,12 +19,12 @@ namespace Prizm
 		~Player3D(void);
 
 		bool Initialize(void) override;
-		bool Init(const std::unique_ptr<Camera>&);
 		void Run(void) override;
-		void Draw(const std::unique_ptr<Camera>& camera);
 		void Draw(void) override;
 		void Finalize(void) override;
+
 		bool LoadShader(const std::string&);
 		bool LoadTexture(const std::string&);
+		void SetConstantBuffer(const std::unique_ptr<Camera>&);
 	};
 }

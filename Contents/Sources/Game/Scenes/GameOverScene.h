@@ -5,14 +5,14 @@
 
 namespace Prizm
 {
-	class TitleScene : public BaseScene
+	class GameOverScene : public BaseScene
 	{
 	private:
 		class Impl;
 		std::unique_ptr<Impl> impl_;
 	public:
-		TitleScene();
-		~TitleScene();
+		GameOverScene();
+		~GameOverScene();
 
 		void LoadScene(void) override;
 		void Update(void) override;

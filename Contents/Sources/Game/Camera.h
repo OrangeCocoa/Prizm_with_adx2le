@@ -33,6 +33,8 @@ namespace Prizm
 		DirectX::SimpleMath::Matrix GetViewInverseMatrix(void) const;
 		DirectX::SimpleMath::Matrix GetProjectionMatrix(void) const;
 
+		DirectX::SimpleMath::Vector2& GetNearFarPlane(void) const;
+
 		void SetPosition(float x, float y, float z);
 		void Rotate(float yaw, float pitch, const float dt);
 

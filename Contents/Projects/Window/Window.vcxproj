@@ -167,6 +167,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>../../Builds/Input/Lib/Release/;</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

@@ -142,6 +142,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../../Builds/Input/Lib/Release;../../Builds/Window/Lib/Release;../../Builds/Framework/Lib/Release/;../../Builds/Graphics/Lib/Release/;../../3rdParty/Lib/Release/DirectXTK/;../../3rdParty/Lib/Release/DirectXTex/</AdditionalLibraryDirectories>
       <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib</AdditionalDependencies>
+      <LinkStatus>true</LinkStatus>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -165,19 +168,23 @@
   <ItemGroup>
     <ClCompile Include="..\..\Sources\Game\BaseSystem.cpp" />
     <ClCompile Include="..\..\Sources\Game\Camera.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Component\Collider.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Component\Renderer.cpp" />
     <ClCompile Include="..\..\Sources\Game\Entity\BackGround.cpp" />
     <ClCompile Include="..\..\Sources\Game\Entity\GroundField.cpp" />
     <ClCompile Include="..\..\Sources\Game\Entity\Player3D.cpp" />
     <ClCompile Include="..\..\Sources\Game\EntryPoint.cpp" />
     <ClCompile Include="..\..\Sources\Game\GameManager.cpp" />
-    <ClCompile Include="..\..\Sources\Game\Light.cpp" />
     <ClCompile Include="..\..\Sources\Game\Scenes\BaseScene.cpp" />
+    <ClCompile Include="..\..\Sources\Game\Scenes\GameOverScene.cpp" />
     <ClCompile Include="..\..\Sources\Game\Scenes\MainGameScene.cpp" />
     <ClCompile Include="..\..\Sources\Game\Scenes\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Sources\Game\BaseSystem.h" />
     <ClInclude Include="..\..\Sources\Game\Camera.h" />
+    <ClInclude Include="..\..\Sources\Game\Component\Collider.h" />
+    <ClInclude Include="..\..\Sources\Game\Component\Renderer.h" />
     <ClInclude Include="..\..\Sources\Game\Entity\BackGround.h" />
     <ClInclude Include="..\..\Sources\Game\Entity\GroundField.h" />
     <ClInclude Include="..\..\Sources\Game\Entity\Player3D.h" />
@@ -185,6 +192,7 @@
     <ClInclude Include="..\..\Sources\Game\Light.h" />
     <ClInclude Include="..\..\Sources\Game\SceneManager.h" />
     <ClInclude Include="..\..\Sources\Game\Scenes\BaseScene.h" />
+    <ClInclude Include="..\..\Sources\Game\Scenes\GameOverScene.h" />
     <ClInclude Include="..\..\Sources\Game\Scenes\MainGameScene.h" />
     <ClInclude Include="..\..\Sources\Game\Scenes\TitleScene.h" />
   </ItemGroup>

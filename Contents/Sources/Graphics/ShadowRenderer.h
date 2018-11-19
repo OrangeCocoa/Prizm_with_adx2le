@@ -15,6 +15,8 @@ namespace Prizm
 		~ShadowRenderer();
 
 		bool Initialize(void);
-		void Render(void);
+		void BeforeRender(void);
+		void RenderSetting(void);
+		void AfterRender(void);
 	};
 }

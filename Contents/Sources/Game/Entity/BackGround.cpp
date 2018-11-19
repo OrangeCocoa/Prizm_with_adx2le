@@ -26,7 +26,7 @@ namespace Prizm
 
 	bool BackGround::Initialize(void)
 	{
-		impl_->geometry_ = std::make_unique<Geometry>(GeometryGenerator::Quad2D(960, 600, 0, 0));
+		impl_->geometry_ = std::make_unique<Geometry>(GeometryGenerator::Quad2D(window_width<float>, window_height<float>, 0, 0));
 
 		return true;
 	}
@@ -56,6 +56,9 @@ namespace Prizm
 	}
 	void BackGround::Finalize(void)
 	{
+		impl_->geometry_.reset();
+		impl_->shader_.reset();
+		impl_->texture_.reset();
 	}
 
 	bool BackGround::LoadShader(const std::string& shader_name)

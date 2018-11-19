@@ -3,11 +3,25 @@
 #include<d3d11.h>
 #include<d3dcompiler.h>
 #include<wrl/client.h>
+
+#include<vector>
+
 #include"Graphics.h"
 #include"Buffer.h"
 
 namespace Prizm
 {
+	enum ShaderFile
+	{
+		OBJECT_2D_SHADER,
+		OBJECT_3D_SHADER,
+		SHADOW_MAP_SHADER,
+		HDAO_SHADER,
+		TILEBASE_COMPUTE_SHADER,
+
+		SHADER_MAX
+	};
+
 	enum ShaderType : unsigned
 	{
 		VS = 0,
@@ -63,7 +77,7 @@ namespace Prizm
 		class Impl;
 		std::unique_ptr<Impl> impl_;
 
-		Buffer constant_buffer_;
+		std::vector<Buffer> constant_buffer_;
 
 	public:
 		Shader(void);
@@ -82,6 +96,7 @@ namespace Prizm
 
 		void SetInputLayout(Microsoft::WRL::ComPtr<ID3D11DeviceContext>& device);
 
+		// the order call register slot
 		template<class ConstantBufferType>
 		void CreateConstantBuffer(Microsoft::WRL::ComPtr<ID3D11Device>& device, ConstantBufferType& data)
 		{
@@ -92,8 +107,8 @@ namespace Prizm
 			buffer.stride = sizeof(ConstantBufferType);
 			buffer.element_count = 1;
 
-			constant_buffer_ = Buffer(buffer);
-			constant_buffer_.Initialize(device.Get(), &data);
+			constant_buffer_.emplace_back(Buffer(buffer));
+			constant_buffer_.back().Initialize(device.Get(), &data);
 		}
 
 		template<class ConstantBufferType>
@@ -101,29 +116,31 @@ namespace Prizm
 			ConstantBufferType& cb, ShaderType type, 
 			unsigned int register_slot, unsigned int buffer_num)
 		{
-			if (constant_buffer_.buffer_data)
+			Microsoft::WRL::ComPtr<ID3D11Buffer> constant_buffer = constant_buffer_[register_slot].buffer_data;
+
+			if (constant_buffer)
 			{
-				dc->UpdateSubresource(constant_buffer_.buffer_data.Get(), 0, 0, &cb, 0, 0);
+				dc->UpdateSubresource(constant_buffer.Get(), 0, 0, &cb, 0, 0);
 
 				switch (type)
 				{
 				case ShaderType::VS:
-					dc->VSSetConstantBuffers(register_slot, buffer_num, constant_buffer_.buffer_data.GetAddressOf());
+					dc->VSSetConstantBuffers(register_slot, buffer_num, constant_buffer.GetAddressOf());
 					break;
 				case ShaderType::PS:
-					dc->PSSetConstantBuffers(register_slot, buffer_num, constant_buffer_.buffer_data.GetAddressOf());
+					dc->PSSetConstantBuffers(register_slot, buffer_num, constant_buffer.GetAddressOf());
 					break;
 				case ShaderType::GS:
-					dc->GSSetConstantBuffers(register_slot, buffer_num, constant_buffer_.buffer_data.GetAddressOf());
+					dc->GSSetConstantBuffers(register_slot, buffer_num, constant_buffer.GetAddressOf());
 					break;
 				case ShaderType::HS:
-					dc->HSSetConstantBuffers(register_slot, buffer_num, constant_buffer_.buffer_data.GetAddressOf());
+					dc->HSSetConstantBuffers(register_slot, buffer_num, constant_buffer.GetAddressOf());
 					break;
 				case ShaderType::DS:
-					dc->DSSetConstantBuffers(register_slot, buffer_num, constant_buffer_.buffer_data.GetAddressOf());
+					dc->DSSetConstantBuffers(register_slot, buffer_num, constant_buffer.GetAddressOf());
 					break;
 				case ShaderType::CS:
-					dc->CSSetConstantBuffers(register_slot, buffer_num, constant_buffer_.buffer_data.GetAddressOf());
+					dc->CSSetConstantBuffers(register_slot, buffer_num, constant_buffer.GetAddressOf());
 					break;
 				}
 			}

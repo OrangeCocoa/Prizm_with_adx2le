@@ -6,6 +6,7 @@ namespace Prizm
 	{
 	public:
 		PointLight point_light_;
+
 	};
 
 	Light::Light() : impl_(std::make_unique<Impl>()){}

@@ -294,7 +294,7 @@ namespace Prizm
 			reinterpret_cast<ID3D11UnorderedAccessView* const*>(uavs.Get()), uav_inits);
 	}
 
-	void Dispatch(Microsoft::WRL::ComPtr<ID3D11DeviceContext>& device_context,
+	void Shader::Dispatch(Microsoft::WRL::ComPtr<ID3D11DeviceContext>& device_context,
 		unsigned int thread_group_x, unsigned int thread_group_y, unsigned int thread_group_z)
 	{
 		device_context->Dispatch(thread_group_x, thread_group_y, thread_group_z);

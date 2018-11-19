@@ -111,7 +111,7 @@ namespace Prizm
 		ImGui::End();
 	}
 
-	void ImguiManager::Exit(void)
+	void ImguiManager::Finalize(void)
 	{
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();

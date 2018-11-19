@@ -41,7 +41,7 @@ namespace Prizm
 			drag_(9.f), angular_deg_speed_(0.1f), move_speed_(0.05f),
 			fade_overlay_(1.0f, 1.0f, 1.0f, 1.0f)
 		{
-			pos_ = DirectX::SimpleMath::Vector3(0, 5, 10);
+			pos_ = DirectX::SimpleMath::Vector3(-3, 1, 1);
 			velocity_ = DirectX::SimpleMath::Vector3(0, 0, 0);
 		}
 
@@ -292,6 +292,13 @@ namespace Prizm
 	DirectX::SimpleMath::Matrix Camera::GetProjectionMatrix(void) const
 	{
 		return impl_->constant_buffer_.proj;
+	}
+
+	DirectX::SimpleMath::Vector2& Camera::GetNearFarPlane(void) const
+	{
+		DirectX::SimpleMath::Vector2 near_far = DirectX::SimpleMath::Vector2(impl_->near_, impl_->far_);
+
+		return near_far;
 	}
 
 	void Camera::SetPosition(float x, float y, float z)

@@ -42,6 +42,14 @@
     <ClInclude Include="..\..\Sources\Graphics\Texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\..\Sources\Graphics\Shaders\Object.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
+    </FxCompile>
     <FxCompile Include="..\..\Sources\Graphics\Shaders\ShadowMap.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
@@ -198,6 +206,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>../../builds/Window/Lib/Release/;../../builds/Framework/Lib/Release/;../../3rdParty/Lib/Release/DirectXTK/;../../3rdParty/Lib/Release/DirectXTex/</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>

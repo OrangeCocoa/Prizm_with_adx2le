@@ -5,7 +5,9 @@
 #include"..\Framework\Log.h"
 #include"..\Input\Input.h"
 #include"SceneManager.h"
+#include"Scenes\TitleScene.h"
 #include"Scenes\MainGameScene.h"
+#include"Scenes\GameOverScene.h"
 
 namespace Prizm
 {

@@ -10,8 +10,6 @@
 #include"..\..\Graphics\Shader.h"
 #include"..\..\Graphics\Texture.h"
 #include"..\..\Graphics\Geometry.h"
-#include"..\..\Graphics\GeometryGenerator.h"
-#include"..\..\Window\Window.h"
 
 namespace Prizm
 {
@@ -21,14 +19,13 @@ namespace Prizm
 		ResourcePool<Entity> back_ground_;
 		std::unordered_map<std::string, ResourcePool<Entity>> game_objects_2D_;		// UI
 		std::unordered_map<std::string, ResourcePool<Entity>> game_objects_3D_;		// objects
+
 		ResourcePool<Shader> shaders_;
 		ResourcePool<Texture> textures_;
 
 		struct FadeResource
 		{
 			std::unique_ptr<Geometry> screen_quad;
-			std::weak_ptr<Shader> quad_shader_vs;
-			std::weak_ptr<Shader> quad_shader_ps;
 		};
 
 		FadeResource fade_resource_;
@@ -36,38 +33,29 @@ namespace Prizm
 	protected:
 		std::unordered_map<std::string, std::vector<unsigned int>> game_object_indices_;
 		int score_;
-		unsigned int ui_shader_vs_index_;
-		unsigned int ui_shader_ps_index_;
 
-		void FadeIn()
-		{
+		unsigned int quad_shader_;
+		unsigned int object_shader_;
+		unsigned int shadow_map_shader_;
+		unsigned int hdao_shader_;
 
-		}
+		void FadeIn(unsigned int);
 
-		void FadeOut()
-		{
+		void FadeOut(unsigned int);
 
-		}
+		unsigned int CreateShader(const std::string&);
 
-		const std::shared_ptr<Shader>& GetShader(unsigned int index)
-		{
-			return shaders_.Get(index);
-		}
+		void CompileShader(const unsigned int, const ShaderType, const std::vector<D3D11_INPUT_ELEMENT_DESC>&);
 
-		const std::shared_ptr<Texture>& GetTexture(unsigned int index)
-		{
-			return textures_.Get(index);
-		}
+		unsigned int LoadTexture(const std::string&);
 
-		void ReleaseShader(unsigned int index)
-		{
-			shaders_.Release(index);
-		}
+		const std::shared_ptr<Shader>& GetShader(const unsigned int);
 
-		void ReleaseTexture(unsigned int index)
-		{
-			textures_.Release(index);
-		}
+		const std::shared_ptr<Texture>& GetTexture(const unsigned int);
+
+		void ReleaseShader(const unsigned int);
+
+		void ReleaseTexture(const unsigned int);
 
 	public:
 		BaseScene(void);

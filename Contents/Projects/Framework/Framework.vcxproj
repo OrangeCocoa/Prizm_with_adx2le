@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Sources\Framework\Component.cpp" />
     <ClCompile Include="..\..\Sources\Framework\Entity.cpp" />
     <ClCompile Include="..\..\Sources\Framework\Log.cpp" />
     <ClCompile Include="..\..\Sources\Framework\PerfTimer.cpp" />
     <ClCompile Include="..\..\Sources\Framework\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Sources\Framework\Component.h" />
     <ClInclude Include="..\..\Sources\Framework\Entity.h" />
     <ClInclude Include="..\..\Sources\Framework\Log.h" />
     <ClInclude Include="..\..\Sources\Framework\PerfTimer.h" />
@@ -154,6 +156,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

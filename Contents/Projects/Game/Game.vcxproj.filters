@@ -21,6 +21,12 @@
     <Filter Include="Header\Entity">
       <UniqueIdentifier>{1ecf18a6-ae04-426e-8f9c-e3251c20bab9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header\Component">
+      <UniqueIdentifier>{a97a4c38-df08-47ba-bdb0-a8e96a1d3a5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Component">
+      <UniqueIdentifier>{dba80d5b-a5b0-4c7b-b299-cc23f2114dc9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\Game\BaseSystem.cpp">
@@ -33,9 +39,6 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Sources\Game\Camera.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Sources\Game\Light.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Sources\Game\Scenes\BaseScene.cpp">
@@ -55,6 +58,15 @@
     </ClCompile>
     <ClCompile Include="..\..\Sources\Game\Scenes\TitleScene.cpp">
       <Filter>Source\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Scenes\GameOverScene.cpp">
+      <Filter>Source\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Component\Collider.cpp">
+      <Filter>Source\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Component\Renderer.cpp">
+      <Filter>Source\Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +102,15 @@
     </ClInclude>
     <ClInclude Include="..\..\Sources\Game\Entity\Player3D.h">
       <Filter>Header\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Scenes\GameOverScene.h">
+      <Filter>Header\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Component\Collider.h">
+      <Filter>Header\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Component\Renderer.h">
+      <Filter>Header\Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

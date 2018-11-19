@@ -213,7 +213,7 @@ namespace Prizm
 		}
 
 		Geometry QuadFieldStrip(float width, float height)
-		{// Line Strip
+		{// Triangle Strip
 			// separate_x * separate_z = all quad mesh num
 			unsigned int separate_x = static_cast<int>(width) / 5 * 2;
 			unsigned int separate_z = static_cast<int>(height) / 5 * 2;
@@ -231,14 +231,50 @@ namespace Prizm
 			unsigned int x_vertex_num = separate_x + 1;
 			unsigned int z_vertex_num = separate_z + 1;
 
-			std::vector<unsigned> indices;
+			unsigned int separate_num = separate_x * separate_z;
+			unsigned int index_num = ((separate_x + 1) * 2) * separate_z + 2 * (separate_z - 1);
 
-			CalculateTangentsAndBitangents(vertices, indices);
-			return Geometry(vertices, indices, TopologyType::TRIANGLE_LIST);
+			for (unsigned int i = 0; i < x_vertex_num * z_vertex_num; ++i)
+			{
+				VertexBuffer3D vertex;
+				vertex.position = DirectX::SimpleMath::Vector4(first_x + padding_x * (i % (separate_x + 1)), 0.0f, first_z - padding_z * (i / (separate_z + 1)), 1.0f);
+				vertex.normal = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
+				vertex.uv = DirectX::SimpleMath::Vector2(static_cast<float>(i % (separate_x + 1)), static_cast<float>(i / (separate_z + 1)));
+				vertex.color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+
+				vertices.emplace_back(vertex);
+			}
+
+			std::vector<unsigned> indices(index_num);
+
+			indices[0] = separate_x + 1; // first
+			indices[1] = 0;				 // second
+
+			unsigned int k = 2;
+			for (unsigned int i = 2; i < index_num; ++i)
+			{
+				indices[i] = indices[i - 2] + 1;
+				k++;
+				if (k == 2 * (separate_x + 1)) // row end
+				{
+					if (i != index_num - 1) // not end
+					{
+						indices[i + 1] = indices[i];			// end
+						indices[i + 2] = indices[i - 1] + 1;	// next row first
+						indices[i + 3] = indices[i + 2];		// first 
+						indices[i + 4] = indices[i + 1] + 1;	// next row second
+						k = 2;
+						i = i + 4;
+					}
+				}
+			}
+
+			//CalculateTangentsAndBitangents(vertices, indices);
+			return Geometry(vertices, indices, TopologyType::TRIANGLE_STRIP);
 		}
 
 		Geometry QuadFieldList(float width, float height)
-		{// Line List
+		{// Triangle List
 			// separate_x * separate_z = all quad mesh num
 			unsigned int separate_x = static_cast<int>(width) / 5 * 2;
 			unsigned int separate_z = static_cast<int>(height) / 5 * 2;

@@ -19,6 +19,8 @@ namespace Prizm
 		std::unique_ptr<Shader> shader_;
 		std::unique_ptr<Texture> texture_;
 
+		CostantBufferMatrix3DSimple cb_;
+
 		Impl(void)
 			: shader_(std::make_unique<Shader>())
 			, texture_(std::make_unique<Texture>()){}
@@ -27,21 +29,15 @@ namespace Prizm
 	GroundField::GroundField(void) : impl_(std::make_unique<Impl>()){}
 	GroundField::~GroundField(void) = default;
 
-	bool GroundField::Initialize(const std::unique_ptr<Camera>& camera)
+	bool GroundField::Initialize(void)
 	{
 		impl_->geometry_ = std::make_unique<Geometry>(GeometryGenerator::QuadFieldList(100, 100));
 
-		CostantBufferMatrix3DSimple cb;
+		impl_->cb_.world = DirectX::SimpleMath::Matrix::Identity;
+		impl_->cb_.view = DirectX::SimpleMath::Matrix::Identity;
+		impl_->cb_.proj = DirectX::SimpleMath::Matrix::Identity;
 
-		cb.world = DirectX::SimpleMath::Matrix::Identity;
-		cb.view = camera->GetViewMatrix();
-		cb.proj = camera->GetProjectionMatrix();
-
-		impl_->texture_->LoadTexture("floor01.jpg");
-
-		LoadShader();
-
-		impl_->shader_->CreateConstantBuffer(Graphics::GetDevice(), cb);
+		impl_->shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_);
 
 		return true;
 	}
@@ -50,17 +46,8 @@ namespace Prizm
 	{
 	}
 
-	void GroundField::Draw(const std::unique_ptr<Camera>& camera)
+	void GroundField::Draw(void)
 	{
-		CostantBufferMatrix3DSimple cb;
-		DirectX::SimpleMath::Matrix matTrans;
-
-		DirectX::XMStoreFloat4x4(&matTrans, DirectX::XMMatrixTranslationFromVector(DirectX::SimpleMath::Vector3(0.0f, -4.0f, 0.0f)));
-
-		cb.world = matTrans;
-		cb.view = camera->GetViewMatrix();
-		cb.proj = camera->GetProjectionMatrix();
-
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> dc = Graphics::GetDeviceContext();
 
 		impl_->shader_->SetInputLayout(dc);
@@ -68,18 +55,25 @@ namespace Prizm
 		impl_->shader_->SetShader(dc, ShaderType::PS);
 
 		Graphics::SetRasterizerState(RasterizerStateType::CULL_NONE);
-		Graphics::SetDepthStencilState(DepthStencilStateType::DEPTH_WRITE);
+		Graphics::SetDepthStencilState(DepthStencilStateType::DEPTH_STENCIL_WRITE);
 		Graphics::SetBlendState(BlendStateType::ALIGNMENT_BLEND);
 
 		impl_->texture_->SetPSTexture(0, 1);
 
 		dc->PSSetSamplers(0, 1, Graphics::GetSamplerState(SamplerStateType::LINEAR_FILTER_SAMPLER).GetAddressOf());
 
-		impl_->shader_->UpdateConstantBuffer(dc, cb, ShaderType::VS, 0, 1);
+		impl_->shader_->UpdateConstantBuffer(dc, impl_->cb_, ShaderType::VS, 0, 1);
 		impl_->geometry_->Draw(dc);
 	}
 
-	bool GroundField::LoadShader(void)
+	void GroundField::Finalize(void)
+	{
+		impl_->geometry_.reset();
+		impl_->shader_.reset();
+		impl_->texture_.reset();
+	}
+
+	bool GroundField::LoadShader(const std::string& shader_name)
 	{
 		std::vector<D3D11_INPUT_ELEMENT_DESC> def_element =
 		{
@@ -90,9 +84,25 @@ namespace Prizm
 			{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32_FLOAT,	 0, 52, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
-		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), "Texture.hlsl", ShaderType::VS, def_element)) return false;
-		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), "Texture.hlsl", ShaderType::PS, def_element)) return false;
+		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::VS, def_element)) return false;
+		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::PS, def_element)) return false;
 
 		return true;
+	}
+	bool GroundField::LoadTexture(const std::string& tex_path)
+	{
+		impl_->texture_->LoadTexture(tex_path);
+
+		return true;
+	}
+	void GroundField::SetConstantBuffer(const std::unique_ptr<Camera>& camera)
+	{
+		DirectX::SimpleMath::Matrix matTrans;
+
+		DirectX::XMStoreFloat4x4(&matTrans, DirectX::XMMatrixTranslationFromVector(DirectX::SimpleMath::Vector3(0.0f, -4.0f, 0.0f)));
+
+		impl_->cb_.world = matTrans;
+		impl_->cb_.view = camera->GetViewMatrix();
+		impl_->cb_.proj = camera->GetProjectionMatrix();
 	}
 }
