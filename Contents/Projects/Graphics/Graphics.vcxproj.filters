@@ -26,19 +26,7 @@
     <ClCompile Include="..\..\Sources\Graphics\Graphics.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Sources\Graphics\Shader.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Sources\Graphics\Texture.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Sources\Graphics\Buffer.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Sources\Graphics\Geometry.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Sources\Graphics\ImguiManager.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Sources\Graphics\ShadowRenderer.cpp">
@@ -49,28 +37,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Sources\Graphics\Buffer.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Sources\Graphics\GeometryGenerator.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Sources\Graphics\Graphics.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Sources\Graphics\Shader.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Sources\Graphics\Texture.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Sources\Graphics\Geometry.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Sources\Graphics\ConstantBuffer.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Sources\Graphics\ImguiManager.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Sources\Graphics\ShadowRenderer.h">
@@ -81,27 +57,24 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\TileForward_cs.hlsl">
+    <FxCompile Include="..\..\Resources\Shaders\2D.hlsl">
       <Filter>Source\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\2D.hlsl">
+    <FxCompile Include="..\..\Resources\Shaders\ShadowMap.hlsl">
       <Filter>Source\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\Texture.hlsl">
+    <FxCompile Include="..\..\Resources\Shaders\Texture.hlsl">
       <Filter>Source\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\ShadowMap.hlsl">
-      <Filter>Source\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\Object.hlsl">
+    <FxCompile Include="..\..\Resources\Shaders\TileForward_cs.hlsl">
       <Filter>Source\Shader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Sources\Graphics\Shaders\LightBuffer.hlsli">
+    <None Include="..\..\Resources\Shaders\LightBuffer.hlsli">
       <Filter>Source\Shader</Filter>
     </None>
-    <None Include="..\..\Sources\Graphics\Shaders\NormalDepth.hlsli">
+    <None Include="..\..\Resources\Shaders\NormalDepth.hlsli">
       <Filter>Source\Shader</Filter>
     </None>
   </ItemGroup>

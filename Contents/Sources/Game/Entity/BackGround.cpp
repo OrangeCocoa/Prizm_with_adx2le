@@ -1,9 +1,10 @@
 
 #include"BackGround.h"
+#include"..\..\Graphics\Graphics.h"
 #include"..\..\Graphics\Geometry.h"
 #include"..\..\Graphics\GeometryGenerator.h"
-#include"..\..\Graphics\Texture.h"
-#include"..\..\Graphics\Shader.h"
+#include"..\..\Framework\Texture.h"
+#include"..\..\Framework\Shader.h"
 #include"..\..\Window\Window.h"
 
 namespace Prizm
@@ -11,14 +12,10 @@ namespace Prizm
 	class BackGround::Impl
 	{
 	public:
+		// ToDo
 		std::unique_ptr<Geometry> geometry_;
-		std::unique_ptr<Shader> shader_;
-		std::unique_ptr<Texture> texture_;
-
-		Impl(void)
-			: shader_(std::make_unique<Shader>())
-			, texture_(std::make_unique<Texture>())
-		{}
+		std::shared_ptr<Shader> shader_;
+		std::shared_ptr<Texture> texture_;
 	};
 
 	BackGround::BackGround(void) : impl_(std::make_unique<Impl>()) {}
@@ -48,7 +45,7 @@ namespace Prizm
 		Graphics::SetDepthStencilState(DepthStencilStateType::DEPTH_STENCIL_DISABLED);
 		Graphics::SetBlendState(BlendStateType::ALIGNMENT_BLEND);
 
-		impl_->texture_->SetPSTexture(0, 1);
+		Graphics::SetPSTexture(0, 1, impl_->texture_->GetSRV());
 
 		device_context->PSSetSamplers(0, 1, Graphics::GetSamplerState(SamplerStateType::LINEAR_FILTER_SAMPLER).GetAddressOf());
 
@@ -61,24 +58,13 @@ namespace Prizm
 		impl_->texture_.reset();
 	}
 
-	bool BackGround::LoadShader(const std::string& shader_name)
+	void BackGround::LoadShader(const std::shared_ptr<Shader>& shader)
 	{
-		std::vector<D3D11_INPUT_ELEMENT_DESC> def_element =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "COLOR"   , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		};
-
-		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::VS, def_element)) return false;
-		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::PS, def_element)) return false;
-		return true;
+		impl_->shader_ = shader;
 	}
 
-	bool BackGround::LoadTexture(const std::string& tex_name)
+	void BackGround::LoadTexture(const std::shared_ptr<Texture>& texture)
 	{
-		impl_->texture_->LoadTexture(tex_name);
-
-		return true;
+		impl_->texture_ = texture;
 	}
 }

@@ -3,7 +3,7 @@
 #include<DirectXTK/SimpleMath.h>
 
 #include"GeometryGenerator.h"
-#include"Buffer.h"
+#include"..\Framework\Buffer.h"
 #include"..\Framework\Utils.h"
 #include"..\Window\Window.h"
 

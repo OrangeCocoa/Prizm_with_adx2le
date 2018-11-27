@@ -19,61 +19,43 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Sources\Graphics\Buffer.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\GeometryGenerator.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\Graphics.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\Geometry.cpp" />
-    <ClCompile Include="..\..\Sources\Graphics\ImguiManager.cpp" />
-    <ClCompile Include="..\..\Sources\Graphics\Shader.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\ShadowRenderer.cpp" />
-    <ClCompile Include="..\..\Sources\Graphics\Texture.cpp" />
     <ClCompile Include="..\..\Sources\Graphics\TileRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Sources\Graphics\Buffer.h" />
     <ClInclude Include="..\..\Sources\Graphics\ConstantBuffer.h" />
     <ClInclude Include="..\..\Sources\Graphics\GeometryGenerator.h" />
     <ClInclude Include="..\..\Sources\Graphics\Graphics.h" />
     <ClInclude Include="..\..\Sources\Graphics\Geometry.h" />
-    <ClInclude Include="..\..\Sources\Graphics\ImguiManager.h" />
     <ClInclude Include="..\..\Sources\Graphics\ShadowRenderer.h" />
     <ClInclude Include="..\..\Sources\Graphics\TileRenderer.h" />
-    <ClInclude Include="..\..\Sources\Graphics\Shader.h" />
-    <ClInclude Include="..\..\Sources\Graphics\Texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\Object.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
-    </FxCompile>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\ShadowMap.hlsl">
+    <FxCompile Include="..\..\Resources\Shaders\2D.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
     </FxCompile>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\Texture.hlsl">
+    <FxCompile Include="..\..\Resources\Shaders\ShadowMap.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
     </FxCompile>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\TileForward_cs.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
+    <FxCompile Include="..\..\Resources\Shaders\Texture.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="..\..\Resources\Shaders\TileForward_cs.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
     </FxCompile>
-    <FxCompile Include="..\..\Sources\Graphics\Shaders\2D.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">VSMain</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Sources\Graphics\Shaders\LightBuffer.hlsli" />
-    <None Include="..\..\Sources\Graphics\Shaders\NormalDepth.hlsli" />
+    <None Include="..\..\Resources\Shaders\LightBuffer.hlsli" />
+    <None Include="..\..\Resources\Shaders\NormalDepth.hlsli" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -164,7 +146,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>../../builds/Window/Lib/Debug/;../../builds/Framework/Lib/Debug/;../../3rdParty/Lib/Debug/DirectXTK/;../../3rdParty/Lib/Debug/DirectXTex/</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../builds/Window/Lib/Debug/;../../builds/Framework/Lib/Debug/;../../3rdParty/Lib/Debug/</AdditionalLibraryDirectories>
     </Lib>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -205,7 +187,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>../../builds/Window/Lib/Release/;../../builds/Framework/Lib/Release/;../../3rdParty/Lib/Release/DirectXTK/;../../3rdParty/Lib/Release/DirectXTex/</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../builds/Window/Lib/Release/;../../builds/Framework/Lib/Release/;../../3rdParty/Lib/Release/</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
     <FxCompile>

@@ -4,6 +4,7 @@
 
 #include"Scenes\BaseScene.h"
 #include"Scenes\MainGameScene.h"
+#include"..\Framework\Log.h"
 
 namespace Prizm
 {
@@ -16,6 +17,7 @@ namespace Prizm
 		SceneManager(void)
 		{
 			cur_scene_ = std::make_unique<BaseScene>();
+			cur_scene_->SetSceneManager(this);
 		}
 
 		~SceneManager(void) = default;
@@ -31,11 +33,13 @@ namespace Prizm
 			
 			cur_scene_ = std::make_unique<SceneTypes>();
 			cur_scene_->LoadScene();
+
+			Log::Info("Scene changed.");
 		}
 
-		void Update(void)
+		bool Update(void)
 		{
-			cur_scene_->Update();
+			return cur_scene_->Update();
 		}
 
 		void Draw(void)

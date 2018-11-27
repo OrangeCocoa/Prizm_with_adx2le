@@ -7,12 +7,14 @@
 
 #include"..\..\Framework\Entity.h"
 #include"..\..\Framework\ResourcePool.h"
-#include"..\..\Graphics\Shader.h"
-#include"..\..\Graphics\Texture.h"
+#include"..\..\Framework\Shader.h"
+#include"..\..\Framework\Texture.h"
 #include"..\..\Graphics\Geometry.h"
 
 namespace Prizm
 {
+	class SceneManager;
+
 	class BaseScene
 	{
 	private:
@@ -23,14 +25,11 @@ namespace Prizm
 		ResourcePool<Shader> shaders_;
 		ResourcePool<Texture> textures_;
 
-		struct FadeResource
-		{
-			std::unique_ptr<Geometry> screen_quad;
-		};
-
-		FadeResource fade_resource_;
+		std::unique_ptr<Geometry> screen_quad_;
+		
 
 	protected:
+		static SceneManager* scene_manager_;
 		std::unordered_map<std::string, std::vector<unsigned int>> game_object_indices_;
 		int score_;
 
@@ -38,6 +37,8 @@ namespace Prizm
 		unsigned int object_shader_;
 		unsigned int shadow_map_shader_;
 		unsigned int hdao_shader_;
+
+		SceneManager* GetSceneManager(void) { return scene_manager_; }
 
 		void FadeIn(unsigned int);
 
@@ -61,16 +62,17 @@ namespace Prizm
 		BaseScene(void);
 		virtual ~BaseScene(void) = default;
 		virtual void LoadScene(void) {}
-		virtual void Update(void) {}
+		virtual bool Update(void) { return true; }
 		virtual void Draw(void) {}
 		virtual void Finalize(void) {}
 
 		template<class _Type>
-		void AddBackGround(void)
+		unsigned int AddBackGround(void)
 		{
 			auto game_object_index = back_ground_.Load(std::make_shared<_Type>());
 			game_object_indices_[typeid(_Type).name()].emplace_back(game_object_index);
 			back_ground_.Get(game_object_index)->Initialize();
+			return game_object_index;
 		}
 
 		template<class _Type>
@@ -81,11 +83,12 @@ namespace Prizm
 		}
 
 		template<class _Type>
-		void AddGameObject2D(void)
+		unsigned int AddGameObject2D(void)
 		{
 			auto game_object_index = game_objects_2D_[typeid(_Type).name()].Load(std::make_shared<_Type>());
 			game_object_indices_[typeid(_Type).name()].emplace_back(game_object_index);
 			game_objects_2D_[typeid(_Type).name()].Get(game_object_index)->Initialize();
+			return game_object_index;
 		}
 		
 		template<class _Type>
@@ -96,11 +99,12 @@ namespace Prizm
 		}
 
 		template<class _Type>
-		void AddGameObject3D(void)
+		unsigned int AddGameObject3D(void)
 		{
 			auto game_object_index = game_objects_3D_[typeid(_Type).name()].Load(std::make_shared<_Type>());
 			game_object_indices_[typeid(_Type).name()].emplace_back(game_object_index);
 			game_objects_3D_[typeid(_Type).name()].Get(game_object_index)->Initialize();
+			return game_object_index;
 		}
 
 		template<class _Type>
@@ -114,5 +118,7 @@ namespace Prizm
 		void RunEntities(void);
 		void DrawEntities(void);
 		void FinalizeEntities(void);
+
+		static void SetSceneManager(SceneManager* sm);
 	};
 }

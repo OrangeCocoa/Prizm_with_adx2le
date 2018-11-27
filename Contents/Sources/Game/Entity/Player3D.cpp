@@ -6,10 +6,11 @@
 #include"..\..\Graphics\Graphics.h"
 #include"..\..\Graphics\Geometry.h"
 #include"..\..\Graphics\GeometryGenerator.h"
-#include"..\..\Graphics\Shader.h"
-#include"..\..\Graphics\Texture.h"
-#include"..\..\Input\Input.h"
+#include"..\..\Framework\Shader.h"
+#include"..\..\Framework\Texture.h"
+#include"..\..\Framework\Buffer.h"
 #include"..\..\Framework\Log.h"
+#include"..\..\Input\Input.h"
 
 namespace Prizm
 {
@@ -17,12 +18,12 @@ namespace Prizm
 	{
 	public:
 		std::unique_ptr<Geometry> geometry_;
-		std::unique_ptr<Shader> shader_;
-		std::unique_ptr<Texture> texture_;
+		std::shared_ptr<Shader> shader_;
+		std::shared_ptr<Texture> texture_;
 
-		unsigned int object_shader_;
-		unsigned int player_texture_;
+		DirectX::SimpleMath::Vector3 pos_;
 
+		Buffer cb_data_;
 		CostantBufferMatrix3DSimple cb_;
 		ConstantBufferObject cb_object_;
 
@@ -40,20 +41,35 @@ namespace Prizm
 	{
 		impl_->geometry_ = std::make_unique<Geometry>(GeometryGenerator::Cube());
 
+		impl_->pos_ = DirectX::SimpleMath::Vector3::Zero;
+
 		impl_->cb_.world = DirectX::SimpleMath::Matrix::Identity;
 		impl_->cb_.view = DirectX::SimpleMath::Matrix::Identity;
 		impl_->cb_.proj = DirectX::SimpleMath::Matrix::Identity;
 
-		impl_->shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_);
-
-		Log::Info("Player3D initialize succeeded.");
+		impl_->cb_data_ = impl_->shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_);
 
 		return true;
 	}
 
 	void Player3D::Run(void)
 	{
+		DirectX::SimpleMath::Matrix trans, rot_X, rot_Y;
 
+		trans = DirectX::SimpleMath::Matrix::CreateTranslation(impl_->pos_);
+
+		static float Y = 0.0f;
+		Y += 0.02f;
+
+		if (Input::IsTouchPress(Input::max_touchcount - 1))
+		{
+			Y += 10.0f;
+		}
+
+		DirectX::XMStoreFloat4x4(&rot_X, DirectX::XMMatrixRotationX(Y * DirectX::XM_PI / 180.0f));
+		DirectX::XMStoreFloat4x4(&rot_Y, DirectX::XMMatrixRotationY(Y * DirectX::XM_PI / 180.0f));
+
+		impl_->cb_.world = rot_Y * rot_X * trans;
 	}
 
 	void Player3D::Draw(void)
@@ -68,11 +84,11 @@ namespace Prizm
 		Graphics::SetDepthStencilState(DepthStencilStateType::DEPTH_STENCIL_WRITE);
 		Graphics::SetBlendState(BlendStateType::ALIGNMENT_BLEND);
 
-		impl_->texture_->SetPSTexture(0, 1);
+		Graphics::SetPSTexture(0, 1, impl_->texture_->GetSRV());
 
 		device_context->PSSetSamplers(0, 1, Graphics::GetSamplerState(SamplerStateType::LINEAR_FILTER_SAMPLER).GetAddressOf());
 
-		impl_->shader_->UpdateConstantBuffer(Graphics::GetDeviceContext(), impl_->cb_, ShaderType::VS, 0, 1);
+		impl_->shader_->UpdateConstantBuffer(Graphics::GetDeviceContext(), impl_->cb_data_, impl_->cb_, ShaderType::VS, 0, 1);
 		impl_->geometry_->Draw(device_context);
 	}
 
@@ -83,47 +99,28 @@ namespace Prizm
 		impl_->texture_.reset();
 	}
 
-	bool Player3D::LoadShader(const std::string& shader_name)
+	void Player3D::LoadShader(const std::shared_ptr<Shader>& shader)
 	{
-		std::vector<D3D11_INPUT_ELEMENT_DESC> def_element =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "COLOR"   , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT,	 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32_FLOAT,	 0, 52, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		};
-
-		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::VS, def_element)) return false;
-		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::PS, def_element)) return false;
-
-		return true;
+		impl_->shader_ = shader;
 	}
 
-	bool Player3D::LoadTexture(const std::string& tex_name)
+	void Player3D::LoadTexture(const std::shared_ptr<Texture>& texture)
 	{
-		impl_->texture_->LoadTexture(tex_name);
-
-		return true;
+		impl_->texture_ = texture;
 	}
 
 	void Player3D::SetConstantBuffer(const std::unique_ptr<Camera>& camera)
 	{
-		DirectX::SimpleMath::Matrix matRotX, matRotY;
-
-		static float Y = 0.0f;
-		Y += 0.02f;
-
-		if (Input::IsTouchPress(Input::max_touchcount - 1))
-		{
-			Y += 10.0f;
-		}
-
-		DirectX::XMStoreFloat4x4(&matRotX, DirectX::XMMatrixRotationX(Y * DirectX::XM_PI / 180.0f));
-		DirectX::XMStoreFloat4x4(&matRotY, DirectX::XMMatrixRotationY(Y * DirectX::XM_PI / 180.0f));
-
-		impl_->cb_.world = matRotY * matRotX;
 		impl_->cb_.view = camera->GetViewMatrix();
 		impl_->cb_.proj = camera->GetProjectionMatrix();
+	}
+
+	DirectX::SimpleMath::Vector3& Player3D::GetPosition(void)
+	{
+		return impl_->pos_;
+	}
+	void Player3D::SetPosition(DirectX::SimpleMath::Vector3& pos)
+	{
+		impl_->pos_ = pos;
 	}
 }

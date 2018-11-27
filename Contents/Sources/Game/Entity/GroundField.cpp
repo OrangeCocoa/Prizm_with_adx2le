@@ -1,24 +1,26 @@
 
 #include"GroundField.h"
 
+#include"..\Camera.h"
 #include"..\..\Graphics\Graphics.h"
 #include"..\..\Graphics\Geometry.h"
 #include"..\..\Graphics\GeometryGenerator.h"
-#include"..\..\Graphics\Shader.h"
-#include"..\..\Graphics\Texture.h"
-#include"..\..\Graphics\ConstantBuffer.h"
-#include"..\Camera.h"
-#include"..\..\Input\Input.h"
+#include"..\..\Framework\Shader.h"
+#include"..\..\Framework\Texture.h"
+#include"..\..\Framework\Buffer.h"
 #include"..\..\Framework\Log.h"
+#include"..\..\Graphics\ConstantBuffer.h"
+#include"..\..\Input\Input.h"
 
 namespace Prizm
 {
 	struct GroundField::Impl
 	{
 		std::unique_ptr<Geometry> geometry_;
-		std::unique_ptr<Shader> shader_;
-		std::unique_ptr<Texture> texture_;
+		std::shared_ptr<Shader> shader_;
+		std::shared_ptr<Texture> texture_;
 
+		Buffer cb_data_;
 		CostantBufferMatrix3DSimple cb_;
 
 		Impl(void)
@@ -37,7 +39,7 @@ namespace Prizm
 		impl_->cb_.view = DirectX::SimpleMath::Matrix::Identity;
 		impl_->cb_.proj = DirectX::SimpleMath::Matrix::Identity;
 
-		impl_->shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_);
+		impl_->cb_data_ = impl_->shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_);
 
 		return true;
 	}
@@ -58,11 +60,11 @@ namespace Prizm
 		Graphics::SetDepthStencilState(DepthStencilStateType::DEPTH_STENCIL_WRITE);
 		Graphics::SetBlendState(BlendStateType::ALIGNMENT_BLEND);
 
-		impl_->texture_->SetPSTexture(0, 1);
+		Graphics::SetPSTexture(0, 1, impl_->texture_->GetSRV());
 
 		dc->PSSetSamplers(0, 1, Graphics::GetSamplerState(SamplerStateType::LINEAR_FILTER_SAMPLER).GetAddressOf());
 
-		impl_->shader_->UpdateConstantBuffer(dc, impl_->cb_, ShaderType::VS, 0, 1);
+		impl_->shader_->UpdateConstantBuffer(dc, impl_->cb_data_, impl_->cb_, ShaderType::VS, 0, 1);
 		impl_->geometry_->Draw(dc);
 	}
 
@@ -73,28 +75,16 @@ namespace Prizm
 		impl_->texture_.reset();
 	}
 
-	bool GroundField::LoadShader(const std::string& shader_name)
+	void GroundField::LoadShader(const std::shared_ptr<Shader>& shader)
 	{
-		std::vector<D3D11_INPUT_ELEMENT_DESC> def_element =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "COLOR"   , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT,	 0, 40, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32_FLOAT,	 0, 52, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		};
-
-		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::VS, def_element)) return false;
-		if (!impl_->shader_->CompileAndCreateFromFile(Graphics::GetDevice(), shader_name, ShaderType::PS, def_element)) return false;
-
-		return true;
+		impl_->shader_ = shader;
 	}
-	bool GroundField::LoadTexture(const std::string& tex_path)
+
+	void GroundField::LoadTexture(const std::shared_ptr<Texture>& texture)
 	{
-		impl_->texture_->LoadTexture(tex_path);
-
-		return true;
+		impl_->texture_ = texture;
 	}
+
 	void GroundField::SetConstantBuffer(const std::unique_ptr<Camera>& camera)
 	{
 		DirectX::SimpleMath::Matrix matTrans;

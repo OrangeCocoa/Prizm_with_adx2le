@@ -2,8 +2,8 @@
 #include<memory>
 
 #include"TileRenderer.h"
-#include"Shader.h"
-#include"Buffer.h"
+#include"..\Framework\Shader.h"
+#include"..\Framework\Buffer.h"
 
 namespace Prizm
 {

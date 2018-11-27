@@ -1,5 +1,6 @@
 
 #include"Entity.h"
+#include"Texture.h"
 
 namespace Prizm
 {

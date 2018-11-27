@@ -20,7 +20,9 @@ namespace Prizm
 		DirectX::SimpleMath::Vector3 pos_, up_, look_at_, velocity_, forward_;
 		DirectX::SimpleMath::Matrix rotation_;
 		DirectX::SimpleMath::Vector3 translation_;
-		ConstantBuffferCamera constant_buffer_;
+		DirectX::SimpleMath::Matrix view_;
+		DirectX::SimpleMath::Matrix proj_;
+		DirectX::SimpleMath::Matrix VP_;
 		float overlay_alpha_;
 
 		float drag_;
@@ -32,9 +34,8 @@ namespace Prizm
 		float near_;
 		float far_;
 
+		//ConstantBuffferCamera constant_buffer_;
 		DirectX::SimpleMath::Vector4 fade_overlay_;	// view color
-
-		Microsoft::WRL::ComPtr<ID3D11Buffer> cb_;
 
 		Impl() : 
 			yaw_(0), pitch_(0),
@@ -152,7 +153,7 @@ namespace Prizm
 		impl_->near_ = near_plane;
 		impl_->far_ = far_plane;
 
-		DirectX::XMStoreFloat4x4(&impl_->constant_buffer_.view, XMMatrixLookAtLH(impl_->pos_, impl_->look_at_, impl_->up_));
+		DirectX::XMStoreFloat4x4(&impl_->view_, XMMatrixLookAtLH(impl_->pos_, impl_->look_at_, impl_->up_));
 
 		SetOthoMatrix(window_width<float>, window_height<float>, near_plane, far_plane);
 		SetProjectionMatrix(vertical_FoV, aspect_ratio, near_plane, far_plane);
@@ -189,11 +190,13 @@ namespace Prizm
 
 		impl_->look_at_ = impl_->pos_ + impl_->look_at_;
 
-		DirectX::XMStoreFloat4x4(&impl_->constant_buffer_.view, XMMatrixLookAtLH(impl_->pos_, impl_->look_at_, impl_->up_));
+		DirectX::XMStoreFloat4x4(&impl_->view_, XMMatrixLookAtLH(impl_->pos_, impl_->look_at_, impl_->up_));
 		
 		impl_->pos_ += impl_->velocity_ * dt;
 
 		SetProjectionMatrix(impl_->fov_, impl_->aspect_, impl_->near_, impl_->far_);
+
+		impl_->VP_ = impl_->proj_ * impl_->view_;
 
 		//graphics_->GetDeviceContext()->UpdateSubresource(impl_->cb_.Get(), 0, nullptr, &impl_->constant_buffer_, 0, 0);
 	}
@@ -218,12 +221,12 @@ namespace Prizm
 
 	void Camera::SetOthoMatrix(float screen_width, float screen_height, float screen_near, float screen_far)
 	{
-		impl_->constant_buffer_.proj = DirectX::XMMatrixOrthographicLH(screen_width, screen_height, screen_near, screen_far);
+		impl_->proj_ = DirectX::XMMatrixOrthographicLH(screen_width, screen_height, screen_near, screen_far);
 	}
 
 	void Camera::SetProjectionMatrix(float fov_y, float screen_aspect, float screen_near, float screen_far)
 	{
-		impl_->constant_buffer_.proj = DirectX::XMMatrixPerspectiveFovLH(fov_y, screen_aspect, screen_near, screen_far);
+		impl_->proj_ = DirectX::XMMatrixPerspectiveFovLH(fov_y, screen_aspect, screen_near, screen_far);
 	}
 
 	void Camera::SetProjectionMatrixHFov(float fov_x, float screen_aspect_inverse, float screen_near, float screen_far)
@@ -258,7 +261,7 @@ namespace Prizm
 		mat._43 = -range * near_z;
 		mat._44 = 0.0f;
 
-		impl_->constant_buffer_.proj = mat;
+		impl_->proj_ = mat;
 	}
 
 	DirectX::SimpleMath::Vector3& Camera::GetPosition(void) const
@@ -271,9 +274,9 @@ namespace Prizm
 		return impl_->look_at_;
 	}
 
-	DirectX::SimpleMath::Matrix Camera::GetViewMatrix(void) const
+	DirectX::SimpleMath::Matrix& Camera::GetViewMatrix(void) const
 	{
-		return impl_->constant_buffer_.view;
+		return impl_->view_;
 	}
 
 	DirectX::SimpleMath::Matrix Camera::GetViewInverseMatrix(void) const
@@ -284,17 +287,22 @@ namespace Prizm
 		DirectX::SimpleMath::Matrix rot = impl_->RotMatrix();
 		
 		DirectX::SimpleMath::Matrix inv_view;
-		impl_->constant_buffer_.view.Invert(inv_view);
+		impl_->view_.Invert(inv_view);
 
 		return inv_view;
 	}
 
-	DirectX::SimpleMath::Matrix Camera::GetProjectionMatrix(void) const
+	DirectX::SimpleMath::Matrix& Camera::GetProjectionMatrix(void) const
 	{
-		return impl_->constant_buffer_.proj;
+		return impl_->proj_;
 	}
 
-	DirectX::SimpleMath::Vector2& Camera::GetNearFarPlane(void) const
+	DirectX::SimpleMath::Matrix& Camera::GetViewProjectionMatrix(void) const
+	{
+		return impl_->VP_;
+	}
+
+	DirectX::SimpleMath::Vector2 Camera::GetNearFarPlane(void) const
 	{
 		DirectX::SimpleMath::Vector2 near_far = DirectX::SimpleMath::Vector2(impl_->near_, impl_->far_);
 

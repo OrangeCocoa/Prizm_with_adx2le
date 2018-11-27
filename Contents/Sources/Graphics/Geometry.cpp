@@ -3,8 +3,6 @@
 
 namespace Prizm
 {
-	Microsoft::WRL::ComPtr<ID3D11Device> Geometry::device_ = nullptr;
-
 	void Geometry::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext>& dc)
 	{
 		UINT offset[] = { 0 };
@@ -21,9 +19,14 @@ namespace Prizm
 		vertex_buffer_.CleanUp();
 		index_buffer_.CleanUp();
 	}
-
-	void Geometry::SetDevice(Microsoft::WRL::ComPtr<ID3D11Device>& device)
+	void Geometry::MovePosition2DScreenToRatio(float x, float y)
 	{
-		device_ = device;
+		for (auto& vtx : vertex_2D_)
+		{
+			vtx.position.x += x / (window_width<float> / 2);
+			vtx.position.y += y / (window_height<float> / 2);
+		}
+
+		vertex_buffer_.Update(Graphics::GetDeviceContext(), static_cast<const void*>(vertex_2D_.data()));
 	}
 }

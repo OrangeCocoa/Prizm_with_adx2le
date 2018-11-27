@@ -1,11 +1,13 @@
 #pragma once
 
 #include<memory>
-#include<string>
 #include"../../Framework/Entity.h"
 
 namespace Prizm
 {
+	class Shader;
+	class Texture;
+
 	class BackGround : public Entity
 	{
 	private:
@@ -21,7 +23,7 @@ namespace Prizm
 		void Draw(void) override;
 		void Finalize(void) override;
 
-		bool LoadShader(const std::string&);
-		bool LoadTexture(const std::string&);
+		void LoadShader(const std::shared_ptr<Shader>&);
+		void LoadTexture(const std::shared_ptr<Texture>&);
 	};
 }

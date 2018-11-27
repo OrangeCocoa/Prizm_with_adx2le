@@ -1,7 +1,8 @@
 
 #include"ShadowRenderer.h"
 #include"Graphics.h"
-#include"Shader.h"
+#include"..\Framework\Shader.h"
+#include"..\Framework\Buffer.h"
 #include"ConstantBuffer.h"
 
 namespace Prizm
@@ -17,7 +18,9 @@ namespace Prizm
 
 		std::unique_ptr<Shader> shadow_map_shader_;
 
+		Buffer cb_light_VP_data_;
 		ConstantBufferShadow1 cb_light_VP_;
+		Buffer cb_mesh_data_;
 		ConstantBufferShadow2 cb_mesh_;
 
 		Impl()
@@ -54,8 +57,8 @@ namespace Prizm
 		impl_->cb_mesh_.world  = DirectX::SimpleMath::Matrix::Identity;
 
 		// create constant buffer
-		impl_->shadow_map_shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_light_VP_);
-		impl_->shadow_map_shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_mesh_);
+		impl_->cb_light_VP_data_ = impl_->shadow_map_shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_light_VP_);
+		impl_->cb_mesh_data_ = impl_->shadow_map_shader_->CreateConstantBuffer(Graphics::GetDevice(), impl_->cb_mesh_);
 
 		// create shadow view port
 		impl_->view_port_shadow_.Width = impl_->shadow_tex_length;
@@ -88,7 +91,7 @@ namespace Prizm
 		// settings
 		{
 			// TODO : shadow view projection update
-			impl_->shadow_map_shader_->UpdateConstantBuffer(device_context, impl_->cb_light_VP_, ShaderType::VS, 0, 1);
+			impl_->shadow_map_shader_->UpdateConstantBuffer(device_context, impl_->cb_light_VP_data_, impl_->cb_light_VP_, ShaderType::VS, 0, 1);
 			impl_->shadow_map_shader_->SetShader(device_context, ShaderType::PS);
 
 			Graphics::SetDepthStencilState(DepthStencilStateType::DEPTH_TEST_ONLY);
@@ -102,7 +105,7 @@ namespace Prizm
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> device_context = Graphics::GetDeviceContext();
 
 		// TODO : world matrix update
-		impl_->shadow_map_shader_->UpdateConstantBuffer(device_context, impl_->cb_mesh_, ShaderType::VS, 1, 1);
+		impl_->shadow_map_shader_->UpdateConstantBuffer(device_context, impl_->cb_mesh_data_, impl_->cb_mesh_, ShaderType::VS, 1, 1);
 
 		impl_->shadow_map_shader_->SetShader(device_context, ShaderType::VS);
 	}

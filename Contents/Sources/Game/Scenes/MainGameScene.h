@@ -16,7 +16,7 @@ namespace Prizm
 		~MainGameScene(void);
 
 		void LoadScene(void) override;
-		void Update(void) override;
+		bool Update(void) override;
 		void Draw(void) override;
 		void Finalize(void) override;
 	};

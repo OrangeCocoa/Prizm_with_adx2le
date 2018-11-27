@@ -1,5 +1,7 @@
 
 #include"GameOverScene.h"
+#include"TitleScene.h"
+#include"..\SceneManager.h"
 #include"..\Entity\BackGround.h"
 #include"..\..\Input\Input.h"
 
@@ -8,7 +10,11 @@ namespace Prizm
 	class GameOverScene::Impl
 	{
 	public:
+		// sound id
+		unsigned long bgm_;
 
+		// texture id
+		unsigned int bg_;
 	};
 
 	GameOverScene::GameOverScene() : impl_(std::make_unique<Impl>()) {}
@@ -16,19 +22,24 @@ namespace Prizm
 
 	void GameOverScene::LoadScene(void)
 	{
-		this->AddBackGround<BackGround>();
-		this->GetBackGround<BackGround>(this->game_object_indices_[typeid(BackGround).name()].back())->LoadShader("2D.hlsl");
-		this->GetBackGround<BackGround>(this->game_object_indices_[typeid(BackGround).name()].back())->LoadTexture("win_vista.jpg");
+		impl_->bg_ = this->LoadTexture("win_vista.jpg");
+
+		auto bg_id = this->AddBackGround<BackGround>();
+		this->GetBackGround<BackGround>(bg_id)->LoadShader(this->GetShader(this->quad_shader_));
+		this->GetBackGround<BackGround>(bg_id)->LoadTexture(this->GetTexture(impl_->bg_));
 	}
 
-	void GameOverScene::Update(void)
+	bool GameOverScene::Update(void)
 	{
+		this->RunEntities();
+	
 		if (Input::IsKeyTriggered("Space"))
 		{
-			//this->;
+			this->GetSceneManager()->SetNextScene<TitleScene>();
+			return false;
 		}
 
-		this->RunEntities();
+		return true;
 	}
 
 	void GameOverScene::Draw(void)

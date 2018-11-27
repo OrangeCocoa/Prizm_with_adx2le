@@ -9,12 +9,8 @@ namespace Prizm
 	inline constexpr bool failed(long hr) { return static_cast<int>(hr) < 0; }
 
 	// true, false, TRUE, FALSE
-	/*inline constexpr bool succeeded(long hr) { return static_cast<int>(hr) >= 0; }
-	inline constexpr bool failed(long hr) { return static_cast<int>(hr) < 0; }*/
-
-	// S_OK, S_FALSE
-	//inline constexpr bool succeeded(long hr) { return static_cast<int>(hr) <= 0; }
-	//inline constexpr bool failed(long hr) { return static_cast<int>(hr) > 0; }
+	/*inline constexpr bool succeeded(long hr) { return static_cast<int>(hr) > 0; }
+	inline constexpr bool failed(long hr) { return static_cast<int>(hr) <= 0; }*/
 
 	namespace StrUtils
 	{

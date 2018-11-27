@@ -8,7 +8,7 @@ namespace Prizm
 		owner_ = entity;
 	}
 
-	std::shared_ptr<Entity>& Component::GetOwner(void)
+	std::shared_ptr<Entity> Component::GetOwner(void)
 	{
 		auto owner = owner_.lock();
 		return owner;

@@ -11,8 +11,8 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "DirectXTK.lib")
-#pragma comment(lib, "DirectXTex.lib")
+#pragma comment(lib, "DirectXTK/DirectXTK.lib")
+#pragma comment(lib, "DirectXTex/DirectXTex.lib")
 
 namespace Prizm
 {
@@ -89,6 +89,8 @@ namespace Prizm
 		void SetDepthStencilState(DepthStencilStateType);
 		Microsoft::WRL::ComPtr<ID3D11SamplerState>& GetSamplerState(SamplerStateType);
 		void SetSamplerState(unsigned int, SamplerStateType, unsigned int);
+
+		void SetPSTexture(UINT register_slot, UINT num_views, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv);
 
 		Microsoft::WRL::ComPtr<ID3D11Device>&			GetDevice(void);
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>&	GetDeviceContext(void);

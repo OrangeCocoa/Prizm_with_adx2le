@@ -21,6 +21,6 @@ namespace Prizm
 		virtual void Finalize(void) = 0;
 		
 		void SetOwner(std::shared_ptr<Entity>& entity);
-		std::shared_ptr<Entity>& GetOwner(void);
+		std::shared_ptr<Entity> GetOwner(void);
 	};
 }

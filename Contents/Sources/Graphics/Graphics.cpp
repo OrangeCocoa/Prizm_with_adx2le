@@ -5,9 +5,8 @@
 
 #include"Graphics.h"
 #include"ConstantBuffer.h"
-#include"Geometry.h"
-#include"Shader.h"
-#include"Texture.h"
+#include"..\Framework\Shader.h"
+#include"..\Framework\Texture.h"
 #include"..\Framework\ResourcePool.h"
 #include"..\Framework\Utils.h"
 #include"..\Framework\Log.h"
@@ -70,6 +69,8 @@ namespace Prizm
 					}
 				}
 			}
+
+			Log::Info("MSAA sample check process done.");
 		}
 
 		bool CreateAdapter(void)
@@ -96,6 +97,8 @@ namespace Prizm
 				Log::Error(err_msg + " (Graphics.cpp)");
 				return false;
 			}
+
+			Log::Info("Adapter create process done.");
 
 			return true;
 		}
@@ -196,6 +199,8 @@ namespace Prizm
 			desc.clear();
 			adapter_output.Reset();
 
+			Log::Info("Displaymode get process done.");
+
 			return true;
 		}
 
@@ -218,6 +223,8 @@ namespace Prizm
 				device_.GetAddressOf(),
 				nullptr,
 				device_context_.GetAddressOf());
+
+			Log::Info("Device create process done.");
 
 			sample_desc_.Count = 1;
 			sample_desc_.Quality = 0;
@@ -260,6 +267,8 @@ namespace Prizm
 				device_.Get(),
 				&swap_chain_desc,
 				swap_chain_.GetAddressOf());
+
+			Log::Info("Swapchain create process done.");
 
 			if (failed(result))
 			{
@@ -308,6 +317,8 @@ namespace Prizm
 				Log::Error("Can't QueryInterface(ID3DUserDefinedAnnotation). (Graphics.cpp)");
 				return false;
 			}
+
+			Log::Info("Debug layer create process done.");
 #endif
 			return true;
 		}
@@ -319,6 +330,8 @@ namespace Prizm
 			swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), static_cast<void**>(&tex_2d));
 
 			device_->CreateRenderTargetView(tex_2d.Get(), nullptr, render_targets_[RenderTargetType::BACK_BUFFER].GetAddressOf());
+
+			Log::Info("Backbuffer render target create process done.");
 
 			return true;
 		}
@@ -354,6 +367,8 @@ namespace Prizm
 			SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 			SRVDesc.Texture2D.MipLevels = 1;
 			device_->CreateShaderResourceView(texture_2d.Get(), &SRVDesc, shadow_resource_.GetAddressOf());
+
+			Log::Info("Shadowmap render target create process done.");
 
 			return true;
 		}
@@ -403,6 +418,8 @@ namespace Prizm
 				return false;
 			}
 
+			Log::Info("Depth stencil view create process done.");
+
 			return true;
 		}
 
@@ -416,6 +433,8 @@ namespace Prizm
 			view_port_.TopLeftX = 0;
 			view_port_.TopLeftY = 0;
 			device_context_->RSSetViewports(1, &view_port_);
+
+			Log::Info("Backbuffer viewport create process done.");
 
 			return true;
 		}
@@ -466,6 +485,8 @@ namespace Prizm
 				Log::Error(err + "Front\n");
 				return false;
 			}
+
+			Log::Info("Rasterizer state create process done.");
 
 			return true;
 		}
@@ -567,6 +588,9 @@ namespace Prizm
 				Log::Error(err + "Disabled\n");
 				return false;
 			}
+
+			Log::Info("Blend state create process done.");
+
 			return true;
 		}
 
@@ -620,6 +644,8 @@ namespace Prizm
 				Log::Error(err + "Linear\n");
 				return false;
 			}
+
+			Log::Info("Sampler state create process done.");
 
 			return true;
 		}
@@ -691,6 +717,8 @@ namespace Prizm
 				return false;
 			}
 
+			Log::Info("Depth stencil state create process done.");
+
 			return true;
 		}
 
@@ -706,6 +734,8 @@ namespace Prizm
 			{
 				debug_->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 			}
+
+			Log::Info("Report live objects create process done.");
 #endif
 		}
 
@@ -722,7 +752,7 @@ namespace Prizm
 
 			if (failed(swap_chain_->ResizeBuffers(desc.BufferCount, Width, Height, desc.BufferDesc.Format, desc.Flags))) return false;
 
-			if (!CreateRenderTargetView()) return false;
+			if (!CreateDefaultRenderTargetView()) return false;
 
 			if (!CreateDepthStencilView()) return false;
 
@@ -785,9 +815,7 @@ namespace Prizm
 
 			if (!CreateDefaultDepthStencilState()) return false;
 
-			Geometry::SetDevice(device_);
-
-			Log::Info("Graphics initialize succeeded.\n\nDirectX11 is all grean!\n");
+			Log::Info("Graphics system initialized.\n");
 
 			return true;
 		}
@@ -834,6 +862,9 @@ namespace Prizm
 				annotation_.Reset();
 			}
 #endif
+
+			Log::Info("Graphics system finalized.\n");
+
 			return;
 		}
 
@@ -959,6 +990,11 @@ namespace Prizm
 				device_context_->CSSetSamplers(register_slot, 1, &sampler_states_[ss_type]);
 				break;
 			}
+		}
+
+		void SetPSTexture(UINT register_slot, UINT num_views, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv)
+		{
+			device_context_->PSSetShaderResources(register_slot, num_views, srv.GetAddressOf());
 		}
 
 		Microsoft::WRL::ComPtr<ID3D11Device>& GetDevice(void) { return device_; }

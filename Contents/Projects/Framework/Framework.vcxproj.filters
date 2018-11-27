@@ -9,6 +9,24 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Header\PZM">
+      <UniqueIdentifier>{9fce800a-9fff-4dac-b6ed-d628d3eec46c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\PZM">
+      <UniqueIdentifier>{df2c0225-6b24-4196-a837-50360a92a279}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Adx2le">
+      <UniqueIdentifier>{32916dc3-4426-4d99-a5a0-0bc2f61741c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Adx2le">
+      <UniqueIdentifier>{4203d07e-a67d-402b-8389-17689f1bf07d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\bullet3">
+      <UniqueIdentifier>{11eaa271-89e9-4c77-aeff-745788d2b07f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\bullet3">
+      <UniqueIdentifier>{85472594-c5ec-4ebc-81bf-3ce71b127eb5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\Framework\PerfTimer.cpp">
@@ -25,6 +43,27 @@
     </ClCompile>
     <ClCompile Include="..\..\Sources\Framework\Component.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Framework\Adx2\Adx2Manager.cpp">
+      <Filter>Source\Adx2le</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Framework\Texture.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Framework\Buffer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Framework\Shader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Framework\PZM\PZMFile.cpp">
+      <Filter>Source\PZM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Framework\bullet3\BulletDebugDraw.cpp">
+      <Filter>Source\bullet3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Framework\bullet3\BulletWorld.cpp">
+      <Filter>Source\bullet3</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -45,6 +84,30 @@
     </ClInclude>
     <ClInclude Include="..\..\Sources\Framework\Component.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\Resource.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\Adx2\Adx2Manager.h">
+      <Filter>Header\Adx2le</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\Texture.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\Buffer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\Shader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\PZM\PZMFile.h">
+      <Filter>Header\PZM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\bullet3\BulletDebugDraw.h">
+      <Filter>Header\bullet3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Framework\bullet3\BulletWorld.h">
+      <Filter>Header\bullet3</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,11 +1,14 @@
 #pragma once
 
 #include<memory>
-#include<string>
+#include<DirectXTK\SimpleMath.h>
+
 #include"..\..\Framework\Entity.h"
 
 namespace Prizm
 {
+	class Shader;
+	class Texture;
 	class Camera;
 
 	class Player3D : public Entity
@@ -23,8 +26,11 @@ namespace Prizm
 		void Draw(void) override;
 		void Finalize(void) override;
 
-		bool LoadShader(const std::string&);
-		bool LoadTexture(const std::string&);
+		void LoadShader(const std::shared_ptr<Shader>&);
+		void LoadTexture(const std::shared_ptr<Texture>&);
 		void SetConstantBuffer(const std::unique_ptr<Camera>&);
+
+		DirectX::SimpleMath::Vector3& GetPosition(void);
+		void SetPosition(DirectX::SimpleMath::Vector3&);
 	};
 }

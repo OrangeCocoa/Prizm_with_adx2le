@@ -27,6 +27,12 @@
     <Filter Include="Source\Component">
       <UniqueIdentifier>{dba80d5b-a5b0-4c7b-b299-cc23f2114dc9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header\Live2D">
+      <UniqueIdentifier>{59e03534-5b38-4435-8db6-78d2a0b9b16e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Live2D">
+      <UniqueIdentifier>{cfd1a455-a5a0-4d5d-95d7-a85e9c34e4f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Sources\Game\BaseSystem.cpp">
@@ -67,6 +73,18 @@
     </ClCompile>
     <ClCompile Include="..\..\Sources\Game\Component\Renderer.cpp">
       <Filter>Source\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Live2D\Live2DModel.cpp">
+      <Filter>Source\Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Live2D\Live2DManager.cpp">
+      <Filter>Source\Live2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\Entity\UI.cpp">
+      <Filter>Source\Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Sources\Game\ImguiManager.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +129,18 @@
     </ClInclude>
     <ClInclude Include="..\..\Sources\Game\Component\Renderer.h">
       <Filter>Header\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Live2D\Live2DManager.h">
+      <Filter>Header\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Live2D\Live2DModel.h">
+      <Filter>Header\Live2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\Entity\UI.h">
+      <Filter>Header\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Sources\Game\ImguiManager.h">
+      <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

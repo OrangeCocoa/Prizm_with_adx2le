@@ -3,18 +3,16 @@
 #include"BaseScene.h"
 #include"..\..\Graphics\Graphics.h"
 #include"..\..\Graphics\GeometryGenerator.h"
-#include"..\..\Game\Camera.h"
+#include"..\Camera.h"
+#include"..\SceneManager.h"
 #include"..\..\Window\Window.h"
 
 namespace Prizm
 {
-	BaseScene::BaseScene(void)
+	SceneManager* BaseScene::scene_manager_ = nullptr;
+
+	BaseScene::BaseScene(void) 
 	{
-		/*for (unsigned int i = 0; i < ShaderFile::SHADER_MAX; ++i)
-		{
-
-		}*/
-
 		// 2D shader
 		quad_shader_ = CreateShader("2D.hlsl");
 
@@ -28,7 +26,7 @@ namespace Prizm
 		CompileShader(quad_shader_, ShaderType::VS, ui_element);
 		CompileShader(quad_shader_, ShaderType::PS, ui_element);
 
-		fade_resource_.screen_quad = std::make_unique<Geometry>(GeometryGenerator::Quad2D(window_width<float>, window_height<float>, 0, 0));
+		screen_quad_ = std::make_unique<Geometry>(GeometryGenerator::Quad2D(window_width<float>, window_height<float>, 0, 0));
 		
 		// shadow map object
 		object_shader_ = CreateShader("Texture.hlsl");
@@ -72,7 +70,7 @@ namespace Prizm
 	unsigned int BaseScene::LoadTexture(const std::string& tex_name)
 	{
 		auto index = textures_.Load(std::make_shared<Texture>());
-		textures_.Get(index)->LoadTexture(tex_name);
+		textures_.Get(index)->LoadTexture(Graphics::GetDevice(), tex_name);
 		return index;
 	}
 
@@ -184,5 +182,10 @@ namespace Prizm
 				}
 			}
 		}
+	}
+
+	void BaseScene::SetSceneManager(SceneManager* sm)
+	{
+		scene_manager_ = sm;
 	}
 }

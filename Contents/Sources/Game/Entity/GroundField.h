@@ -1,11 +1,12 @@
 #pragma once
 
 #include<memory>
-#include<string>
 #include"..\..\Framework\Entity.h"
 
 namespace Prizm
 {
+	class Shader;
+	class Texture;
 	class Camera;
 
 	class GroundField : public Entity
@@ -22,8 +23,9 @@ namespace Prizm
 		void Run(void) override;
 		void Draw(void) override;
 		void Finalize(void) override;
-		bool LoadShader(const std::string&);
-		bool LoadTexture(const std::string&);
+
+		void LoadShader(const std::shared_ptr<Shader>&);
+		void LoadTexture(const std::shared_ptr<Texture>&);
 		void SetConstantBuffer(const std::unique_ptr<Camera>&);
 	};
 }
