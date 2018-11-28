@@ -38,8 +38,6 @@ namespace Prizm
 		this->GetGameObject2D<UI>(ui_id)->LoadTexture(this->GetTexture(impl_->cri_));
 		this->GetGameObject2D<UI>(ui_id)->SetPosition(-700.f, -400.f);
 
-		//this->AddGameObject2D<>()
-
 		impl_->bmg_id_ = Adx2Manager::PlayGeneralCue(CRI_GENERALCUESHEET_BOY_MEETS_GIRL);
 	}
 
@@ -54,12 +52,6 @@ namespace Prizm
 			this->GetSceneManager()->SetNextScene<MainGameScene>();
 			return false;
 		}
-
-		/*if (Input::IsKeyTriggered("P"))
-		{
-			static int pause_status = 0;
-			Adx2Manager::PauseCue(impl_->bmg_id_, pause_status ^= 1);
-		}*/
 
 		return true;
 	}

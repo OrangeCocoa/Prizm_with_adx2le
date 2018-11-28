@@ -22,7 +22,7 @@ namespace Prizm
 
 	void GameOverScene::LoadScene(void)
 	{
-		impl_->bg_ = this->LoadTexture("win_vista.jpg");
+		impl_->bg_ = this->LoadTexture("win_10_4K.jpg");
 
 		auto bg_id = this->AddBackGround<BackGround>();
 		this->GetBackGround<BackGround>(bg_id)->LoadShader(this->GetShader(this->quad_shader_));
